@@ -1,0 +1,31 @@
+"""
+This code is made to filter property type == Residential
+"""
+import pandas as pd
+
+#reading the files
+sold_df = pd.read_csv('Sold_combined.csv', encoding = 'latin1', low_memory = False)
+listing_df = pd.read_csv("Listing_combined.csv", encoding = 'latin1', low_memory= False)
+
+print(f'Total row: {len(sold_df)}')
+print(f'Total row: {len(listing_df)}')
+
+#filter for residential only in sold
+residential_sold = sold_df[sold_df['PropertyType']=='Residential']
+
+#saving
+residential_sold.to_csv("Sold_Residential.csv", index = False)
+
+#filter for residential only in listing
+residential_listing = listing_df[listing_df['PropertyType']== 'Residential']
+
+#saving
+residential_listing.to_csv("Listing_Residential.csv", index = False)
+
+
+#Print summary
+print (f'Sold Residential Total Rows: {len(residential_sold)}')
+print (f'Listing Residential Total Rows: {len(residential_listing)}')
+
+
+
