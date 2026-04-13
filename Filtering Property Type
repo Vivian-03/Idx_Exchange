@@ -1,14 +1,16 @@
 """
 This code is made to filter property type == Residential
 """
+
 import pandas as pd
+
 
 #reading the files
 sold_df = pd.read_csv('Sold_combined.csv', encoding = 'latin1', low_memory = False)
 listing_df = pd.read_csv("Listing_combined.csv", encoding = 'latin1', low_memory= False)
 
-print(f'Total row: {len(sold_df)}')
-print(f'Total row: {len(listing_df)}')
+print(f'Sold Total row: {len(sold_df)}')
+print(f'Listing Total row: {len(listing_df)}')
 
 #filter for residential only in sold
 residential_sold = sold_df[sold_df['PropertyType']=='Residential']
@@ -27,5 +29,18 @@ residential_listing.to_csv("Listing_Residential.csv", index = False)
 print (f'Sold Residential Total Rows: {len(residential_sold)}')
 print (f'Listing Residential Total Rows: {len(residential_listing)}')
 
+"""
+New Numbers:
+    
+Sold Total row: 591733
+Listing Total row: 852963
+Sold Residential Total Rows: 397603
+Listing Residential Total Rows: 540183
 
 
+Orignal numbers:
+Sold Total row: 591257
+Listing Total row: 831537
+Sold Residential Total Rows: 397316
+Listing Residential Total Rows: 526350
+"""
