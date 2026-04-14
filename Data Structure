@@ -1,0 +1,341 @@
+"""
+This code was created to examine data structure
+"""
+import pandas as pd
+
+sold = pd.read_csv('C:/IDX EXCHANGE/Sold_combined.csv', encoding = 'latin1', low_memory=False)
+sold_residential = pd.read_csv ('C:/IDX EXCHANGE/Sold_Residential.csv', encoding = 'latin1', low_memory=False)
+listing = pd.read_csv ('C:/IDX EXCHANGE/Listing_combined.csv', encoding = 'latin1', low_memory=False)
+listing_residential = pd.read_csv('C:/IDX EXCHANGE/Listing_Residential.csv', encoding ='latin1', low_memory=False)
+
+print(f'Sold Columns: {sold.columns}')
+print(f'\n First couple Sold Rows: {sold.head()}')
+print(f'\n Sold Residential Columns: {sold_residential.columns}')
+print(f'\n Sold Residential First few rows: {sold_residential.head()}')
+print(f'\n Listing Columns: {listing.columns}')
+print(f'\n First couple Listing Rows: {listing.head()}')
+print(f'\n Listing Residential Columns: {listing_residential.columns}')
+print(f'\n Listing Residential First few rows: {listing_residential.head()}')
+
+print(sold.dtypes)
+print(listing.dtypes)
+"""
+Results:
+ Sold Columns: Index(['BuyerAgentAOR', 'ListAgentAOR', 'Flooring', 'ViewYN', 'WaterfrontYN',
+        'BasementYN', 'PoolPrivateYN', 'OriginalListPrice', 'ListingKey',
+        'ListAgentEmail', 'CloseDate', 'ClosePrice', 'ListAgentFirstName',
+        'ListAgentLastName', 'Latitude', 'Longitude', 'UnparsedAddress',
+        'PropertyType', 'LivingArea', 'ListPrice', 'DaysOnMarket',
+        'ListOfficeName', 'BuyerOfficeName', 'CoListOfficeName',
+        'ListAgentFullName', 'CoListAgentFirstName', 'CoListAgentLastName',
+        'BuyerAgentMlsId', 'BuyerAgentFirstName', 'BuyerAgentLastName',
+        'FireplacesTotal', 'AssociationFeeFrequency', 'AboveGradeFinishedArea',
+        'ListingKeyNumeric', 'MLSAreaMajor', 'TaxAnnualAmount',
+        'CountyOrParish', 'MlsStatus', 'ElementarySchool', 'AttachedGarageYN',
+        'ParkingTotal', 'BuilderName', 'PropertySubType', 'LotSizeAcres',
+        'SubdivisionName', 'BuyerOfficeAOR', 'YearBuilt', 'StreetNumberNumeric',
+        'ListingId', 'BathroomsTotalInteger', 'City', 'TaxYear',
+        'BuildingAreaTotal', 'BedroomsTotal', 'ContractStatusChangeDate',
+        'ElementarySchoolDistrict', 'CoBuyerAgentFirstName',
+        'PurchaseContractDate', 'ListingContractDate', 'BelowGradeFinishedArea',
+        'BusinessType', 'StateOrProvince', 'CoveredSpaces',
+        'MiddleOrJuniorSchool', 'FireplaceYN', 'Stories', 'HighSchool',
+        'Levels', 'LotSizeDimensions', 'LotSizeArea', 'MainLevelBedrooms',
+        'NewConstructionYN', 'GarageSpaces', 'HighSchoolDistrict', 'PostalCode',
+        'AssociationFee', 'LotSizeSquareFeet', 'MiddleOrJuniorSchoolDistrict',
+        'OriginatingSystemName', 'OriginatingSystemSubName',
+        'BuyerAgencyCompensationType', 'BuyerAgencyCompensation', 'latfilled',
+        'lonfilled'],
+       dtype='object')
+
+  First couple Sold Rows:               BuyerAgentAOR              ListAgentAOR  ... latfilled lonfilled
+ 0               Mlslistings               Mlslistings  ...       NaN       NaN
+ 1                HighDesert                HighDesert  ...       NaN       NaN
+ 2              OrangeCounty              OrangeCounty  ...       NaN       NaN
+ 3             InlandValleys             InlandValleys  ...       NaN       NaN
+ 4  SouthwestRiversideCounty  SouthwestRiversideCounty  ...       NaN       NaN
+
+ [5 rows x 84 columns]
+
+  Sold Residential Columns: Index(['BuyerAgentAOR', 'ListAgentAOR', 'Flooring', 'ViewYN', 'WaterfrontYN',
+        'BasementYN', 'PoolPrivateYN', 'OriginalListPrice', 'ListingKey',
+        'ListAgentEmail', 'CloseDate', 'ClosePrice', 'ListAgentFirstName',
+        'ListAgentLastName', 'Latitude', 'Longitude', 'UnparsedAddress',
+        'PropertyType', 'LivingArea', 'ListPrice', 'DaysOnMarket',
+        'ListOfficeName', 'BuyerOfficeName', 'CoListOfficeName',
+        'ListAgentFullName', 'CoListAgentFirstName', 'CoListAgentLastName',
+        'BuyerAgentMlsId', 'BuyerAgentFirstName', 'BuyerAgentLastName',
+        'FireplacesTotal', 'AssociationFeeFrequency', 'AboveGradeFinishedArea',
+        'ListingKeyNumeric', 'MLSAreaMajor', 'TaxAnnualAmount',
+        'CountyOrParish', 'MlsStatus', 'ElementarySchool', 'AttachedGarageYN',
+        'ParkingTotal', 'BuilderName', 'PropertySubType', 'LotSizeAcres',
+        'SubdivisionName', 'BuyerOfficeAOR', 'YearBuilt', 'StreetNumberNumeric',
+        'ListingId', 'BathroomsTotalInteger', 'City', 'TaxYear',
+        'BuildingAreaTotal', 'BedroomsTotal', 'ContractStatusChangeDate',
+        'ElementarySchoolDistrict', 'CoBuyerAgentFirstName',
+        'PurchaseContractDate', 'ListingContractDate', 'BelowGradeFinishedArea',
+        'BusinessType', 'StateOrProvince', 'CoveredSpaces',
+        'MiddleOrJuniorSchool', 'FireplaceYN', 'Stories', 'HighSchool',
+        'Levels', 'LotSizeDimensions', 'LotSizeArea', 'MainLevelBedrooms',
+        'NewConstructionYN', 'GarageSpaces', 'HighSchoolDistrict', 'PostalCode',
+        'AssociationFee', 'LotSizeSquareFeet', 'MiddleOrJuniorSchoolDistrict',
+        'OriginatingSystemName', 'OriginatingSystemSubName',
+        'BuyerAgencyCompensationType', 'BuyerAgencyCompensation', 'latfilled',
+        'lonfilled'],
+       dtype='object')
+
+  Sold Residential First few rows:   BuyerAgentAOR ListAgentAOR  ... latfilled lonfilled
+ 0   Mlslistings  Mlslistings  ...       NaN       NaN
+ 1      SanDiego     SanDiego  ...       NaN       NaN
+ 2      SanDiego     SanDiego  ...       NaN       NaN
+ 3   Mlslistings  Mlslistings  ...       NaN       NaN
+ 4     Southland    Southland  ...       NaN       NaN
+
+ [5 rows x 84 columns]
+
+  Listing Columns: Index(['OriginalListPrice', 'ListingKey', 'ListAgentEmail', 'CloseDate',
+        'ClosePrice', 'ListAgentFirstName', 'ListAgentLastName', 'Latitude',
+        'Longitude', 'UnparsedAddress', 'PropertyType', 'LivingArea',
+        'ListPrice', 'DaysOnMarket', 'ListOfficeName', 'BuyerOfficeName',
+        'CoListOfficeName', 'ListAgentFullName', 'CoListAgentFirstName',
+        'CoListAgentLastName', 'BuyerAgentMlsId', 'BuyerAgentFirstName',
+        'BuyerAgentLastName', 'FireplacesTotal', 'AssociationFeeFrequency',
+        'AboveGradeFinishedArea', 'ListingKeyNumeric', 'MLSAreaMajor',
+        'TaxAnnualAmount', 'CountyOrParish', 'PropertyType.1', 'MlsStatus',
+        'ElementarySchool', 'ListAgentFirstName.1', 'AttachedGarageYN',
+        'ParkingTotal', 'BuilderName', 'PropertySubType', 'LotSizeAcres',
+        'SubdivisionName', 'BuyerOfficeAOR', 'YearBuilt', 'DaysOnMarket.1',
+        'BuyerAgencyCompensationType', 'StreetNumberNumeric', 'LivingArea.1',
+        'ListingId', 'BathroomsTotalInteger', 'City', 'BuyerAgencyCompensation',
+        'TaxYear', 'BuildingAreaTotal', 'BedroomsTotal',
+        'ContractStatusChangeDate', 'Longitude.1', 'ElementarySchoolDistrict',
+        'CoBuyerAgentFirstName', 'PurchaseContractDate', 'ListingContractDate',
+        'BelowGradeFinishedArea', 'BusinessType', 'Latitude.1', 'ListPrice.1',
+        'StateOrProvince', 'CoveredSpaces', 'MiddleOrJuniorSchool',
+        'FireplaceYN', 'Stories', 'HighSchool', 'Levels', 'ListAgentLastName.1',
+        'CloseDate.1', 'LotSizeDimensions', 'LotSizeArea', 'MainLevelBedrooms',
+        'NewConstructionYN', 'GarageSpaces', 'HighSchoolDistrict', 'PostalCode',
+        'BuyerOfficeName.1', 'AssociationFee', 'LotSizeSquareFeet',
+        'MiddleOrJuniorSchoolDistrict', 'UnparsedAddress.1'],
+       dtype='object')
+
+  First couple Listing Rows:    OriginalListPrice  ...              UnparsedAddress.1
+ 0            90000.0  ...                1045 N Azusa 61
+ 1          1500000.0  ...                            NaN
+ 2          1340000.0  ...  2220 Avenue Of The Stars 2704
+ 3          2500000.0  ...                   16 Palisades
+ 4          3150000.0  ...              1615 Waverly Road
+
+ [5 rows x 84 columns]
+
+  Listing Residential Columns: Index(['OriginalListPrice', 'ListingKey', 'ListAgentEmail', 'CloseDate',
+        'ClosePrice', 'ListAgentFirstName', 'ListAgentLastName', 'Latitude',
+        'Longitude', 'UnparsedAddress', 'PropertyType', 'LivingArea',
+        'ListPrice', 'DaysOnMarket', 'ListOfficeName', 'BuyerOfficeName',
+        'CoListOfficeName', 'ListAgentFullName', 'CoListAgentFirstName',
+        'CoListAgentLastName', 'BuyerAgentMlsId', 'BuyerAgentFirstName',
+        'BuyerAgentLastName', 'FireplacesTotal', 'AssociationFeeFrequency',
+        'AboveGradeFinishedArea', 'ListingKeyNumeric', 'MLSAreaMajor',
+        'TaxAnnualAmount', 'CountyOrParish', 'PropertyType.1', 'MlsStatus',
+        'ElementarySchool', 'ListAgentFirstName.1', 'AttachedGarageYN',
+        'ParkingTotal', 'BuilderName', 'PropertySubType', 'LotSizeAcres',
+        'SubdivisionName', 'BuyerOfficeAOR', 'YearBuilt', 'DaysOnMarket.1',
+        'BuyerAgencyCompensationType', 'StreetNumberNumeric', 'LivingArea.1',
+        'ListingId', 'BathroomsTotalInteger', 'City', 'BuyerAgencyCompensation',
+        'TaxYear', 'BuildingAreaTotal', 'BedroomsTotal',
+        'ContractStatusChangeDate', 'Longitude.1', 'ElementarySchoolDistrict',
+        'CoBuyerAgentFirstName', 'PurchaseContractDate', 'ListingContractDate',
+        'BelowGradeFinishedArea', 'BusinessType', 'Latitude.1', 'ListPrice.1',
+        'StateOrProvince', 'CoveredSpaces', 'MiddleOrJuniorSchool',
+        'FireplaceYN', 'Stories', 'HighSchool', 'Levels', 'ListAgentLastName.1',
+        'CloseDate.1', 'LotSizeDimensions', 'LotSizeArea', 'MainLevelBedrooms',
+        'NewConstructionYN', 'GarageSpaces', 'HighSchoolDistrict', 'PostalCode',
+        'BuyerOfficeName.1', 'AssociationFee', 'LotSizeSquareFeet',
+        'MiddleOrJuniorSchoolDistrict', 'UnparsedAddress.1'],
+       dtype='object')
+
+  Listing Residential First few rows:    OriginalListPrice  ...              UnparsedAddress.1
+ 0          1340000.0  ...  2220 Avenue Of The Stars 2704
+ 1          2500000.0  ...                   16 Palisades
+ 2          3150000.0  ...              1615 Waverly Road
+ 3          3090000.0  ...         2250 Indian Creek Road
+ 4         12725000.0  ...                317 E. Bayfront
+
+ [5 rows x 84 columns]   
+
+
+Sold Data Types:
+    BuyerAgentAOR                    object
+    ListAgentAOR                     object
+    Flooring                         object
+    ViewYN                           object
+    WaterfrontYN                     object
+    BasementYN                       object
+    PoolPrivateYN                    object
+    OriginalListPrice               float64
+    ListingKey                        int64
+    ListAgentEmail                   object
+    CloseDate                        object
+    ClosePrice                      float64
+    ListAgentFirstName               object
+    ListAgentLastName                object
+    Latitude                        float64
+    Longitude                       float64
+    UnparsedAddress                  object
+    PropertyType                     object
+    LivingArea                      float64
+    ListPrice                       float64
+    DaysOnMarket                      int64
+    ListOfficeName                   object
+    BuyerOfficeName                  object
+    CoListOfficeName                 object
+    ListAgentFullName                object
+    CoListAgentFirstName             object
+    CoListAgentLastName              object
+    BuyerAgentMlsId                  object
+    BuyerAgentFirstName              object
+    BuyerAgentLastName               object
+    FireplacesTotal                 float64
+    AssociationFeeFrequency          object
+    AboveGradeFinishedArea          float64
+    ListingKeyNumeric                 int64
+    MLSAreaMajor                     object
+    TaxAnnualAmount                 float64
+    CountyOrParish                   object
+    MlsStatus                        object
+    ElementarySchool                 object
+    AttachedGarageYN                 object
+    ParkingTotal                    float64
+    BuilderName                      object
+    PropertySubType                  object
+    LotSizeAcres                    float64
+    SubdivisionName                  object
+    BuyerOfficeAOR                   object
+    YearBuilt                       float64
+    StreetNumberNumeric             float64
+    ListingId                        object
+    BathroomsTotalInteger           float64
+    City                             object
+    TaxYear                         float64
+    BuildingAreaTotal               float64
+    BedroomsTotal                   float64
+    ContractStatusChangeDate         object
+    ElementarySchoolDistrict        float64
+    CoBuyerAgentFirstName            object
+    PurchaseContractDate             object
+    ListingContractDate              object
+    BelowGradeFinishedArea          float64
+    BusinessType                     object
+    StateOrProvince                  object
+    CoveredSpaces                   float64
+    MiddleOrJuniorSchool             object
+    FireplaceYN                      object
+    Stories                         float64
+    HighSchool                       object
+    Levels                           object
+    LotSizeDimensions                object
+    LotSizeArea                     float64
+    MainLevelBedrooms               float64
+    NewConstructionYN                object
+    GarageSpaces                    float64
+    HighSchoolDistrict               object
+    PostalCode                       object
+    AssociationFee                  float64
+    LotSizeSquareFeet               float64
+    MiddleOrJuniorSchoolDistrict    float64
+    OriginatingSystemName            object
+    OriginatingSystemSubName         object
+    BuyerAgencyCompensationType      object
+    BuyerAgencyCompensation         float64
+    latfilled                        object
+    lonfilled                        object
+    dtype: object
+    
+Listing Data Type:
+    OriginalListPrice               float64
+    ListingKey                        int64
+    ListAgentEmail                   object
+    CloseDate                        object
+    ClosePrice                      float64
+    ListAgentFirstName               object
+    ListAgentLastName                object
+    Latitude                        float64
+    Longitude                       float64
+    UnparsedAddress                  object
+    PropertyType                     object
+    LivingArea                      float64
+    ListPrice                       float64
+    DaysOnMarket                      int64
+    ListOfficeName                   object
+    BuyerOfficeName                  object
+    CoListOfficeName                 object
+    ListAgentFullName                object
+    CoListAgentFirstName             object
+    CoListAgentLastName              object
+    BuyerAgentMlsId                  object
+    BuyerAgentFirstName              object
+    BuyerAgentLastName               object
+    FireplacesTotal                 float64
+    AssociationFeeFrequency          object
+    AboveGradeFinishedArea          float64
+    ListingKeyNumeric                 int64
+    MLSAreaMajor                     object
+    TaxAnnualAmount                 float64
+    CountyOrParish                   object
+    PropertyType.1                   object
+    MlsStatus                        object
+    ElementarySchool                 object
+    ListAgentFirstName.1             object
+    AttachedGarageYN                 object
+    ParkingTotal                    float64
+    BuilderName                      object
+    PropertySubType                  object
+    LotSizeAcres                    float64
+    SubdivisionName                  object
+    BuyerOfficeAOR                   object
+    YearBuilt                       float64
+    DaysOnMarket.1                    int64
+    BuyerAgencyCompensationType      object
+    StreetNumberNumeric             float64
+    LivingArea.1                    float64
+    ListingId                        object
+    BathroomsTotalInteger           float64
+    City                             object
+    BuyerAgencyCompensation         float64
+    TaxYear                         float64
+    BuildingAreaTotal               float64
+    BedroomsTotal                   float64
+    ContractStatusChangeDate         object
+    Longitude.1                     float64
+    ElementarySchoolDistrict        float64
+    CoBuyerAgentFirstName            object
+    PurchaseContractDate             object
+    ListingContractDate              object
+    BelowGradeFinishedArea          float64
+    BusinessType                     object
+    Latitude.1                      float64
+    ListPrice.1                     float64
+    StateOrProvince                  object
+    CoveredSpaces                   float64
+    MiddleOrJuniorSchool             object
+    FireplaceYN                      object
+    Stories                         float64
+    HighSchool                       object
+    Levels                           object
+    ListAgentLastName.1              object
+    CloseDate.1                      object
+    LotSizeDimensions                object
+    LotSizeArea                     float64
+    MainLevelBedrooms               float64
+    NewConstructionYN                object
+    GarageSpaces                    float64
+    HighSchoolDistrict               object
+    PostalCode                       object
+    BuyerOfficeName.1                object
+    AssociationFee                  float64
+    LotSizeSquareFeet               float64
+    MiddleOrJuniorSchoolDistrict    float64
+    UnparsedAddress.1                object
+    dtype: object
+    
+"""
