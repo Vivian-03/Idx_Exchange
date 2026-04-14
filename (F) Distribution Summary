@@ -1,0 +1,35 @@
+Distribution Summary
+"""
+#ClosePrice, LivingArea, and
+#DaysOnMarket
+import pandas as pd
+pd.set_option('display.float_format', '{:.2f}'.format)
+
+sold = pd.read_csv('C:/IDX EXCHANGE/Sold_combined.csv', encoding = 'latin1', low_memory=False)
+sold_residential = pd.read_csv ('C:/IDX EXCHANGE/Sold_Residential.csv', encoding = 'latin1', low_memory=False)
+listing = pd.read_csv ('C:/IDX EXCHANGE/Listing_combined.csv', encoding = 'latin1', low_memory=False)
+listing_residential = pd.read_csv('C:/IDX EXCHANGE/Listing_Residential.csv', encoding ='latin1', low_memory=False)
+
+sold_summary = sold[['ClosePrice', 'LivingArea', 'DaysOnMarket']].describe()
+sold_summary_median = sold[['ClosePrice', 'LivingArea', 'DaysOnMarket']].median()
+print (sold_summary)
+print (sold_summary_median)
+
+"""
+Results:
+        ClosePrice   LivingArea  DaysOnMarket
+count    591726.00    549951.00     591733.00
+mean     874014.73      3495.37         43.29
+std     5229021.13   1226085.59         69.84
+min           0.00         0.00       -288.00
+25%       52500.00      1183.00          9.00
+50%      629727.50      1579.00         22.00
+75%     1070000.00      2150.00         54.00
+max   989500000.00 909090909.00      12430.00
+
+Median:
+ClosePrice     629727.50
+LivingArea       1579.00
+DaysOnMarket       22.00
+dtype: float64
+"""
