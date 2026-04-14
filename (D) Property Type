@@ -1,0 +1,17 @@
+import pandas as pd
+
+sold = pd.read_csv('C:/IDX EXCHANGE/Sold_combined.csv', encoding = 'latin1', low_memory=False)
+sold_residential = pd.read_csv ('C:/IDX EXCHANGE/Sold_Residential.csv', encoding = 'latin1', low_memory=False)
+listing = pd.read_csv ('C:/IDX EXCHANGE/Listing_combined.csv', encoding = 'latin1', low_memory=False)
+listing_residential = pd.read_csv('C:/IDX EXCHANGE/Listing_Residential.csv', encoding ='latin1', low_memory=False)
+
+property_categories = sold['PropertyType'].unique()
+print (property_categories)
+
+"""
+Results:
+ ['Residential' 'CommercialLease' 'Land' 'ResidentialLease'
+  'ManufacturedInPark' 'ResidentialIncome' 'CommercialSale'
+  'BusinessOpportunity']
+
+"""   
