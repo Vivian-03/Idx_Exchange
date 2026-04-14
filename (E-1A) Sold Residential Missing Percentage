@@ -1,0 +1,111 @@
+import pandas as pd
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
+pd.set_option('display.width', None)
+pd.set_option('display.max_colwidth', None)
+
+sold = pd.read_csv('C:/IDX EXCHANGE/Sold_combined.csv', encoding = 'latin1', low_memory=False)
+sold_residential = pd.read_csv ('C:/IDX EXCHANGE/Sold_Residential.csv', encoding = 'latin1', low_memory=False)
+listing = pd.read_csv ('C:/IDX EXCHANGE/Listing_combined.csv', encoding = 'latin1', low_memory=False)
+listing_residential = pd.read_csv('C:/IDX EXCHANGE/Listing_Residential.csv', encoding ='latin1', low_memory=False)
+# Calculate missing counts and percentages
+missing_counts = sold_residential.isnull().sum()
+missing_percentages = (missing_counts / len(sold_residential)) * 100
+
+# Combine into a DataFrame
+missing_df = pd.DataFrame({
+    'Sold Residential Missing Count': missing_counts,
+    'Sold Residential Missing Percentage': missing_percentages
+})
+
+print(missing_df)
+
+"""
+Results
+
+                          Sold  Missing Count    Sold Missing Percentage
+BuyerAgentAOR                         49091           12.346738
+ListAgentAOR                          46186           11.616110
+Flooring                             142590           35.862405
+ViewYN                                33869            8.518296
+WaterfrontYN                         397355           99.937626
+BasementYN                           389826           98.044029
+PoolPrivateYN                         34435            8.660649
+OriginalListPrice                       721            0.181337
+ListingKey                                0            0.000000
+ListAgentEmail                        29012            7.296726
+CloseDate                                 0            0.000000
+ClosePrice                                2            0.000503
+ListAgentFirstName                     2999            0.754270
+ListAgentLastName                        40            0.010060
+Latitude                              15822            3.979346
+Longitude                             15822            3.979346
+UnparsedAddress                         362            0.091046
+PropertyType                              0            0.000000
+LivingArea                              229            0.057595
+ListPrice                                 0            0.000000
+DaysOnMarket                              0            0.000000
+ListOfficeName                            0            0.000000
+BuyerOfficeName                        6538            1.644354
+CoListOfficeName                     303521           76.337704
+ListAgentFullName                        85            0.021378
+CoListAgentFirstName                 306611           77.114861
+CoListAgentLastName                  306376           77.055757
+BuyerAgentMlsId                         503            0.126508
+BuyerAgentFirstName                    1952            0.490942
+BuyerAgentLastName                      167            0.042002
+FireplacesTotal                      397603          100.000000
+AssociationFeeFrequency              232049           58.361984
+AboveGradeFinishedArea               397603          100.000000
+ListingKeyNumeric                         0            0.000000
+MLSAreaMajor                          53122           13.360563
+TaxAnnualAmount                      397603          100.000000
+CountyOrParish                            0            0.000000
+MlsStatus                                 0            0.000000
+ElementarySchool                     344627           86.676157
+AttachedGarageYN                      60679           15.261203
+ParkingTotal                            426            0.107142
+BuilderName                          378056           95.083790
+PropertySubType                         776            0.195170
+LotSizeAcres                          31364            7.888270
+SubdivisionName                      249875           62.845351
+BuyerOfficeAOR                        21446            5.393822
+YearBuilt                               356            0.089537
+StreetNumberNumeric                     445            0.111921
+ListingId                                 0            0.000000
+BathroomsTotalInteger                    69            0.017354
+City                                    310            0.077967
+TaxYear                              397603          100.000000
+BuildingAreaTotal                    369810           93.009862
+BedroomsTotal                            11            0.002767
+ContractStatusChangeDate                589            0.148138
+ElementarySchoolDistrict             397603          100.000000
+CoBuyerAgentFirstName                361576           90.938952
+PurchaseContractDate                    194            0.048792
+ListingContractDate                       1            0.000252
+BelowGradeFinishedArea               395313           99.424049
+BusinessType                         397603          100.000000
+StateOrProvince                           0            0.000000
+CoveredSpaces                        397603          100.000000
+MiddleOrJuniorSchool                 344273           86.587123
+FireplaceYN                             316            0.079476
+Stories                               61503           15.468445
+HighSchool                           328353           82.583129
+Levels                                38569            9.700380
+LotSizeDimensions                    378282           95.140630
+LotSizeArea                           30863            7.762265
+MainLevelBedrooms                    166841           41.961706
+NewConstructionYN                     29453            7.407640
+GarageSpaces                          17053            4.288952
+HighSchoolDistrict                   108857           27.378315
+PostalCode                                2            0.000503
+AssociationFee                        90998           22.886648
+LotSizeSquareFeet                     30987            7.793452
+MiddleOrJuniorSchoolDistrict         397603          100.000000
+OriginatingSystemName                358351           90.127841
+OriginatingSystemSubName             358351           90.127841
+BuyerAgencyCompensationType          351467           88.396466
+BuyerAgencyCompensation              351478           88.399232
+latfilled                            333719           83.932717
+lonfilled                            333719           83.932717
+"""
