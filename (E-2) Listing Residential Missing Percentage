@@ -1,0 +1,111 @@
+import pandas as pd
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
+pd.set_option('display.width', None)
+pd.set_option('display.max_colwidth', None)
+
+sold = pd.read_csv('C:/IDX EXCHANGE/Sold_combined.csv', encoding = 'latin1', low_memory=False)
+sold_residential = pd.read_csv ('C:/IDX EXCHANGE/Sold_Residential.csv', encoding = 'latin1', low_memory=False)
+listing = pd.read_csv ('C:/IDX EXCHANGE/Listing_combined.csv', encoding = 'latin1', low_memory=False)
+listing_residential = pd.read_csv('C:/IDX EXCHANGE/Listing_Residential.csv', encoding ='latin1', low_memory=False)
+# Calculate missing counts and percentages
+missing_counts = listing_residential.isnull().sum()
+missing_percentages = (missing_counts / len(listing_residential)) * 100
+
+# Combine into a DataFrame
+missing_df = pd.DataFrame({
+    'Missing Count': missing_counts,
+    'Missing Percentage': missing_percentages
+})
+
+print(missing_df)
+
+
+"""
+Results (Residential):
+                           Listing Missing Count  Listing Missing Percentage
+OriginalListPrice                       774            0.143285
+ListingKey                                0            0.000000
+ListAgentEmail                        47001            8.700940
+CloseDate                            374361           69.302625
+ClosePrice                           394603           73.049874
+ListAgentFirstName                     4225            0.782142
+ListAgentLastName                        39            0.007220
+Latitude                              80145           14.836639
+Longitude                             80145           14.836639
+UnparsedAddress                         670            0.124032
+PropertyType                              0            0.000000
+LivingArea                              556            0.102928
+ListPrice                                 0            0.000000
+DaysOnMarket                              0            0.000000
+ListOfficeName                            0            0.000000
+BuyerOfficeName                      383233           70.945032
+CoListOfficeName                     419157           77.595370
+ListAgentFullName                        90            0.016661
+CoListAgentFirstName                 419643           77.685340
+CoListAgentLastName                  419242           77.611106
+BuyerAgentMlsId                      381086           70.547574
+BuyerAgentFirstName                  381704           70.661979
+BuyerAgentLastName                   380976           70.527210
+FireplacesTotal                      540183          100.000000
+AssociationFeeFrequency              309326           57.263187
+AboveGradeFinishedArea               540183          100.000000
+ListingKeyNumeric                         0            0.000000
+MLSAreaMajor                          73002           13.514309
+TaxAnnualAmount                      540183          100.000000
+CountyOrParish                            0            0.000000
+PropertyType.1                            0            0.000000
+MlsStatus                                 0            0.000000
+ElementarySchool                     475845           88.089592
+ListAgentFirstName.1                   4225            0.782142
+AttachedGarageYN                      94413           17.477966
+ParkingTotal                             20            0.003702
+BuilderName                          514943           95.327509
+PropertySubType                        1247            0.230848
+LotSizeAcres                          44518            8.241281
+SubdivisionName                      341249           63.172851
+BuyerOfficeAOR                       393468           72.839760
+YearBuilt                               939            0.173830
+DaysOnMarket.1                            0            0.000000
+BuyerAgencyCompensationType          461170           85.372920
+StreetNumberNumeric                     850            0.157354
+LivingArea.1                            556            0.102928
+ListingId                                 0            0.000000
+BathroomsTotalInteger                    55            0.010182
+City                                    584            0.108112
+BuyerAgencyCompensation              461190           85.376622
+TaxYear                              540183          100.000000
+BuildingAreaTotal                    492186           91.114678
+BedroomsTotal                           148            0.027398
+ContractStatusChangeDate               6020            1.114437
+Longitude.1                           80145           14.836639
+ElementarySchoolDistrict             540183          100.000000
+CoBuyerAgentFirstName                525755           97.329053
+PurchaseContractDate                 273091           50.555275
+ListingContractDate                       0            0.000000
+BelowGradeFinishedArea               537154           99.439264
+BusinessType                         540183          100.000000
+Latitude.1                            80145           14.836639
+ListPrice.1                               0            0.000000
+StateOrProvince                          62            0.011478
+CoveredSpaces                        540183          100.000000
+MiddleOrJuniorSchool                 475701           88.062934
+FireplaceYN                             573            0.106075
+Stories                               94249           17.447606
+HighSchool                           455717           84.363447
+Levels                                58040           10.744507
+ListAgentLastName.1                      39            0.007220
+CloseDate.1                          374361           69.302625
+LotSizeDimensions                    511990           94.780843
+LotSizeArea                           43679            8.085963
+MainLevelBedrooms                    246075           45.554007
+NewConstructionYN                     37153            6.877854
+GarageSpaces                          29991            5.552007
+HighSchoolDistrict                   162408           30.065367
+PostalCode                               13            0.002407
+BuyerOfficeName.1                    383233           70.945032
+AssociationFee                       129662           24.003347
+LotSizeSquareFeet                     43854            8.118360
+MiddleOrJuniorSchoolDistrict         540183          100.000000
+UnparsedAddress.1                       670            0.124032
+"""
