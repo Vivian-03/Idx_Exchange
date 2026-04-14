@@ -1,0 +1,110 @@
+import pandas as pd
+sold = pd.read_csv('C:/IDX EXCHANGE/Sold_combined.csv', encoding = 'latin1', low_memory=False)
+sold_residential = pd.read_csv ('C:/IDX EXCHANGE/Sold_Residential.csv', encoding = 'latin1', low_memory=False)
+listing = pd.read_csv ('C:/IDX EXCHANGE/Listing_combined.csv', encoding = 'latin1', low_memory=False)
+listing_residential = pd.read_csv('C:/IDX EXCHANGE/Listing_Residential.csv', encoding ='latin1', low_memory=False)
+#calculate missing stats
+missing_counts = sold_residential.isnull().sum()
+missing_percent = (missing_counts / len(sold_residential)) * 100
+
+#create summary DataFrame
+missing_summary = pd.DataFrame({
+    'Column': sold_residential.columns,
+    'Missing_Count': missing_counts,
+    'Missing_Percent': missing_percent,
+    'Flag_>90%': missing_percent > 90
+    })
+
+#filter to show only flagged columns
+flagged = missing_summary[missing_summary['Flag_>90%'] == True]
+print(flagged)
+
+missing_counts = listing_residential.isnull().sum()
+missing_percent = (missing_counts / len(listing_residential)) * 100
+
+#create summary DataFrame
+missing_summary = pd.DataFrame({
+    'Column': listing_residential.columns,
+    'Missing_Count': missing_counts,
+    'Missing_Percent': missing_percent,
+    'Flag_>90%': missing_percent > 90
+    })
+
+#filter to show only flagged columns
+flagged = missing_summary[missing_summary['Flag_>90%'] == True]
+print(flagged)
+
+
+
+"""
+Results (Sold_Residential):
+                                                    Column  Missing_Count  \
+WaterfrontYN                                  WaterfrontYN         397355   
+BasementYN                                      BasementYN         389826   
+FireplacesTotal                            FireplacesTotal         397603   
+AboveGradeFinishedArea              AboveGradeFinishedArea         397603   
+TaxAnnualAmount                            TaxAnnualAmount         397603   
+BuilderName                                    BuilderName         378056   
+TaxYear                                            TaxYear         397603   
+BuildingAreaTotal                        BuildingAreaTotal         369810   
+ElementarySchoolDistrict          ElementarySchoolDistrict         397603   
+CoBuyerAgentFirstName                CoBuyerAgentFirstName         361576   
+BelowGradeFinishedArea              BelowGradeFinishedArea         395313   
+BusinessType                                  BusinessType         397603   
+CoveredSpaces                                CoveredSpaces         397603   
+LotSizeDimensions                        LotSizeDimensions         378282   
+MiddleOrJuniorSchoolDistrict  MiddleOrJuniorSchoolDistrict         397603   
+OriginatingSystemName                OriginatingSystemName         358351   
+OriginatingSystemSubName          OriginatingSystemSubName         358351   
+
+                              Missing_Percent  Flag_>90%  
+WaterfrontYN                            99.94       True  
+BasementYN                              98.04       True  
+FireplacesTotal                        100.00       True  
+AboveGradeFinishedArea                 100.00       True  
+TaxAnnualAmount                        100.00       True  
+BuilderName                             95.08       True  
+TaxYear                                100.00       True  
+BuildingAreaTotal                       93.01       True  
+ElementarySchoolDistrict               100.00       True  
+CoBuyerAgentFirstName                   90.94       True  
+BelowGradeFinishedArea                  99.42       True  
+BusinessType                           100.00       True  
+CoveredSpaces                          100.00       True  
+LotSizeDimensions                       95.14       True  
+MiddleOrJuniorSchoolDistrict           100.00       True  
+OriginatingSystemName                   90.13       True  
+OriginatingSystemSubName                90.13       True 
+
+Results (Listing_Residential):
+                                                    Column  Missing_Count  \
+FireplacesTotal                            FireplacesTotal         540183   
+AboveGradeFinishedArea              AboveGradeFinishedArea         540183   
+TaxAnnualAmount                            TaxAnnualAmount         540183   
+BuilderName                                    BuilderName         514943   
+TaxYear                                            TaxYear         540183   
+BuildingAreaTotal                        BuildingAreaTotal         492186   
+ElementarySchoolDistrict          ElementarySchoolDistrict         540183   
+CoBuyerAgentFirstName                CoBuyerAgentFirstName         525755   
+BelowGradeFinishedArea              BelowGradeFinishedArea         537154   
+BusinessType                                  BusinessType         540183   
+CoveredSpaces                                CoveredSpaces         540183   
+LotSizeDimensions                        LotSizeDimensions         511990   
+MiddleOrJuniorSchoolDistrict  MiddleOrJuniorSchoolDistrict         540183   
+
+                              Missing_Percent  Flag_>90%  
+FireplacesTotal                        100.00       True  
+AboveGradeFinishedArea                 100.00       True  
+TaxAnnualAmount                        100.00       True  
+BuilderName                             95.33       True  
+TaxYear                                100.00       True  
+BuildingAreaTotal                       91.11       True  
+ElementarySchoolDistrict               100.00       True  
+CoBuyerAgentFirstName                   97.33       True  
+BelowGradeFinishedArea                  99.44       True  
+BusinessType                           100.00       True  
+CoveredSpaces                          100.00       True  
+LotSizeDimensions                       94.78       True  
+MiddleOrJuniorSchoolDistrict           100.00       True  
+
+"""
