@@ -1,1 +1,456 @@
+#Creating Sold Files
+import pandas as pd
+import os
+import glob
+
+folder_path = "C:/IDX EXCHANGE/raw"
+
+#get csv file
+sold = os.path.join(folder_path, '*Sold*.csv')
+sold_files = glob.glob(sold)
+print(f"Found {len(sold_files)} sold files")
+
+#sold files
+if sold_files:
+    sold_dfs = [pd.read_csv(f, encoding = 'latin1', low_memory=False) for f in sold_files]
+    combined_sold = pd.concat(sold_dfs, ignore_index=True)
+    combined_sold.to_csv('Sold_combined.csv', index=False)
+    print(f"\n Sold: {len(sold_files)} files, {len(combined_sold)} total rows")
+    
+    #shows which files were combined
+    for f in sold_files:
+        print(f"   - {os.path.basename(f)}")
+        
+        
+
+#Filtering Sold property type == Residential
+import pandas as pd
+
+#reading the files
+sold_df = pd.read_csv('Sold_combined.csv', encoding = 'latin1', low_memory = False)
+print(f'Sold Total row: {len(sold_df)}')
+#filter for residential only in sold
+residential_sold = sold_df[sold_df['PropertyType']=='Residential']
+
+#saving
+residential_sold.to_csv("Sold_Residential.csv", index = False)
+#Print summary
+print (f'Sold Residential Total Rows: {len(residential_sold)}')
+
+#OUTPUT:
+#Sold Total row: 591733
+#Sold Residential Total Rows: 397603
+
+
+#EXAMINING DATA STRUCTURE
+import pandas as pd
+
+sold = pd.read_csv('C:/IDX EXCHANGE/Sold_combined.csv', encoding = 'latin1', low_memory=False)
+sold_residential = pd.read_csv ('C:/IDX EXCHANGE/Sold_Residential.csv', encoding = 'latin1', low_memory=False)
+print(f'Sold Columns: {sold.columns}')
+print(f'\n First couple Sold Rows: {sold.head()}')
+print(f'\n Sold Residential Columns: {sold_residential.columns}')
+print(f'\n Sold Residential First few rows: {sold_residential.head()}')
+
+print(sold.dtypes)
+
+"""
+Output:
+ Results:
+ Sold Columns: Index(['BuyerAgentAOR', 'ListAgentAOR', 'Flooring', 'ViewYN', 'WaterfrontYN',
+        'BasementYN', 'PoolPrivateYN', 'OriginalListPrice', 'ListingKey',
+        'ListAgentEmail', 'CloseDate', 'ClosePrice', 'ListAgentFirstName',
+        'ListAgentLastName', 'Latitude', 'Longitude', 'UnparsedAddress',
+        'PropertyType', 'LivingArea', 'ListPrice', 'DaysOnMarket',
+        'ListOfficeName', 'BuyerOfficeName', 'CoListOfficeName',
+        'ListAgentFullName', 'CoListAgentFirstName', 'CoListAgentLastName',
+        'BuyerAgentMlsId', 'BuyerAgentFirstName', 'BuyerAgentLastName',
+        'FireplacesTotal', 'AssociationFeeFrequency', 'AboveGradeFinishedArea',
+        'ListingKeyNumeric', 'MLSAreaMajor', 'TaxAnnualAmount',
+        'CountyOrParish', 'MlsStatus', 'ElementarySchool', 'AttachedGarageYN',
+        'ParkingTotal', 'BuilderName', 'PropertySubType', 'LotSizeAcres',
+        'SubdivisionName', 'BuyerOfficeAOR', 'YearBuilt', 'StreetNumberNumeric',
+        'ListingId', 'BathroomsTotalInteger', 'City', 'TaxYear',
+        'BuildingAreaTotal', 'BedroomsTotal', 'ContractStatusChangeDate',
+        'ElementarySchoolDistrict', 'CoBuyerAgentFirstName',
+        'PurchaseContractDate', 'ListingContractDate', 'BelowGradeFinishedArea',
+        'BusinessType', 'StateOrProvince', 'CoveredSpaces',
+        'MiddleOrJuniorSchool', 'FireplaceYN', 'Stories', 'HighSchool',
+        'Levels', 'LotSizeDimensions', 'LotSizeArea', 'MainLevelBedrooms',
+        'NewConstructionYN', 'GarageSpaces', 'HighSchoolDistrict', 'PostalCode',
+        'AssociationFee', 'LotSizeSquareFeet', 'MiddleOrJuniorSchoolDistrict',
+        'OriginatingSystemName', 'OriginatingSystemSubName',
+        'BuyerAgencyCompensationType', 'BuyerAgencyCompensation', 'latfilled',
+        'lonfilled'],
+       dtype='object')
+
+  First couple Sold Rows:               BuyerAgentAOR              ListAgentAOR  ... latfilled lonfilled
+ 0               Mlslistings               Mlslistings  ...       NaN       NaN
+ 1                HighDesert                HighDesert  ...       NaN       NaN
+ 2              OrangeCounty              OrangeCounty  ...       NaN       NaN
+ 3             InlandValleys             InlandValleys  ...       NaN       NaN
+ 4  SouthwestRiversideCounty  SouthwestRiversideCounty  ...       NaN       NaN
+
+ [5 rows x 84 columns]
+
+  Sold Residential Columns: Index(['BuyerAgentAOR', 'ListAgentAOR', 'Flooring', 'ViewYN', 'WaterfrontYN',
+        'BasementYN', 'PoolPrivateYN', 'OriginalListPrice', 'ListingKey',
+        'ListAgentEmail', 'CloseDate', 'ClosePrice', 'ListAgentFirstName',
+        'ListAgentLastName', 'Latitude', 'Longitude', 'UnparsedAddress',
+        'PropertyType', 'LivingArea', 'ListPrice', 'DaysOnMarket',
+        'ListOfficeName', 'BuyerOfficeName', 'CoListOfficeName',
+        'ListAgentFullName', 'CoListAgentFirstName', 'CoListAgentLastName',
+        'BuyerAgentMlsId', 'BuyerAgentFirstName', 'BuyerAgentLastName',
+        'FireplacesTotal', 'AssociationFeeFrequency', 'AboveGradeFinishedArea',
+        'ListingKeyNumeric', 'MLSAreaMajor', 'TaxAnnualAmount',
+        'CountyOrParish', 'MlsStatus', 'ElementarySchool', 'AttachedGarageYN',
+        'ParkingTotal', 'BuilderName', 'PropertySubType', 'LotSizeAcres',
+        'SubdivisionName', 'BuyerOfficeAOR', 'YearBuilt', 'StreetNumberNumeric',
+        'ListingId', 'BathroomsTotalInteger', 'City', 'TaxYear',
+        'BuildingAreaTotal', 'BedroomsTotal', 'ContractStatusChangeDate',
+        'ElementarySchoolDistrict', 'CoBuyerAgentFirstName',
+        'PurchaseContractDate', 'ListingContractDate', 'BelowGradeFinishedArea',
+        'BusinessType', 'StateOrProvince', 'CoveredSpaces',
+        'MiddleOrJuniorSchool', 'FireplaceYN', 'Stories', 'HighSchool',
+        'Levels', 'LotSizeDimensions', 'LotSizeArea', 'MainLevelBedrooms',
+        'NewConstructionYN', 'GarageSpaces', 'HighSchoolDistrict', 'PostalCode',
+        'AssociationFee', 'LotSizeSquareFeet', 'MiddleOrJuniorSchoolDistrict',
+        'OriginatingSystemName', 'OriginatingSystemSubName',
+        'BuyerAgencyCompensationType', 'BuyerAgencyCompensation', 'latfilled',
+        'lonfilled'],
+       dtype='object')
+
+  Sold Residential First few rows:   BuyerAgentAOR ListAgentAOR  ... latfilled lonfilled
+ 0   Mlslistings  Mlslistings  ...       NaN       NaN
+ 1      SanDiego     SanDiego  ...       NaN       NaN
+ 2      SanDiego     SanDiego  ...       NaN       NaN
+ 3   Mlslistings  Mlslistings  ...       NaN       NaN
+ 4     Southland    Southland  ...       NaN       NaN
+
+ [5 rows x 84 columns]
+
+Sold Data Types:
+    BuyerAgentAOR                    object
+    ListAgentAOR                     object
+    Flooring                         object
+    ViewYN                           object
+    WaterfrontYN                     object
+    BasementYN                       object
+    PoolPrivateYN                    object
+    OriginalListPrice               float64
+    ListingKey                        int64
+    ListAgentEmail                   object
+    CloseDate                        object
+    ClosePrice                      float64
+    ListAgentFirstName               object
+    ListAgentLastName                object
+    Latitude                        float64
+    Longitude                       float64
+    UnparsedAddress                  object
+    PropertyType                     object
+    LivingArea                      float64
+    ListPrice                       float64
+    DaysOnMarket                      int64
+    ListOfficeName                   object
+    BuyerOfficeName                  object
+    CoListOfficeName                 object
+    ListAgentFullName                object
+    CoListAgentFirstName             object
+    CoListAgentLastName              object
+    BuyerAgentMlsId                  object
+    BuyerAgentFirstName              object
+    BuyerAgentLastName               object
+    FireplacesTotal                 float64
+    AssociationFeeFrequency          object
+    AboveGradeFinishedArea          float64
+    ListingKeyNumeric                 int64
+    MLSAreaMajor                     object
+    TaxAnnualAmount                 float64
+    CountyOrParish                   object
+    MlsStatus                        object
+    ElementarySchool                 object
+    AttachedGarageYN                 object
+    ParkingTotal                    float64
+    BuilderName                      object
+    PropertySubType                  object
+    LotSizeAcres                    float64
+    SubdivisionName                  object
+    BuyerOfficeAOR                   object
+    YearBuilt                       float64
+    StreetNumberNumeric             float64
+    ListingId                        object
+    BathroomsTotalInteger           float64
+    City                             object
+    TaxYear                         float64
+    BuildingAreaTotal               float64
+    BedroomsTotal                   float64
+    ContractStatusChangeDate         object
+    ElementarySchoolDistrict        float64
+    CoBuyerAgentFirstName            object
+    PurchaseContractDate             object
+    ListingContractDate              object
+    BelowGradeFinishedArea          float64
+    BusinessType                     object
+    StateOrProvince                  object
+    CoveredSpaces                   float64
+    MiddleOrJuniorSchool             object
+    FireplaceYN                      object
+    Stories                         float64
+    HighSchool                       object
+    Levels                           object
+    LotSizeDimensions                object
+    LotSizeArea                     float64
+    MainLevelBedrooms               float64
+    NewConstructionYN                object
+    GarageSpaces                    float64
+    HighSchoolDistrict               object
+    PostalCode                       object
+    AssociationFee                  float64
+    LotSizeSquareFeet               float64
+    MiddleOrJuniorSchoolDistrict    float64
+    OriginatingSystemName            object
+    OriginatingSystemSubName         object
+    BuyerAgencyCompensationType      object
+    BuyerAgencyCompensation         float64
+    latfilled                        object
+    lonfilled                        object
+    dtype: object
+"""
+
+
+#Property Types
+import pandas as pd
+
+sold = pd.read_csv('C:/IDX EXCHANGE/Sold_combined.csv', encoding = 'latin1', low_memory=False)
+sold_residential = pd.read_csv ('C:/IDX EXCHANGE/Sold_Residential.csv', encoding = 'latin1', low_memory=False)
+property_categories = sold['PropertyType'].unique()
+print (property_categories)
+
+"""
+Results:
+ ['Residential' 'CommercialLease' 'Land' 'ResidentialLease'
+  'ManufacturedInPark' 'ResidentialIncome' 'CommercialSale'
+  'BusinessOpportunity']
+
+"""
+
+#Data Completeness
+
+import pandas as pd
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
+pd.set_option('display.width', None)
+pd.set_option('display.max_colwidth', None)
+
+sold = pd.read_csv('C:/IDX EXCHANGE/Sold_combined.csv', encoding = 'latin1', low_memory=False)
+sold_residential = pd.read_csv ('C:/IDX EXCHANGE/Sold_Residential.csv', encoding = 'latin1', low_memory=False)
+print(sold_residential.isnull().sum())
+print ("Sold Missing:")
+print(sold.isnull().sum())
+"""
+Results for SOLD:
+    
+ Residential Sold Missing:
+     
+ BuyerAgentAOR                    49091
+ ListAgentAOR                     46186
+ Flooring                        142590
+ ViewYN                           33869
+ WaterfrontYN                    397355
+ BasementYN                      389826
+ PoolPrivateYN                    34435
+ OriginalListPrice                  721
+ ListingKey                           0
+ ListAgentEmail                   29012
+ CloseDate                            0
+ ClosePrice                           2
+ ListAgentFirstName                2999
+ ListAgentLastName                   40
+ Latitude                         15822
+ Longitude                        15822
+ UnparsedAddress                    362
+ PropertyType                         0
+ LivingArea                         229
+ ListPrice                            0
+ DaysOnMarket                         0
+ ListOfficeName                       0
+ BuyerOfficeName                   6538
+ CoListOfficeName                303521
+ ListAgentFullName                   85
+ CoListAgentFirstName            306611
+ CoListAgentLastName             306376
+ BuyerAgentMlsId                    503
+ BuyerAgentFirstName               1952
+ BuyerAgentLastName                 167
+ FireplacesTotal                 397603
+ AssociationFeeFrequency         232049
+ AboveGradeFinishedArea          397603
+ ListingKeyNumeric                    0
+ MLSAreaMajor                     53122
+ TaxAnnualAmount                 397603
+ CountyOrParish                       0
+ MlsStatus                            0
+ ElementarySchool                344627
+ AttachedGarageYN                 60679
+ ParkingTotal                       426
+ BuilderName                     378056
+ PropertySubType                    776
+ LotSizeAcres                     31364
+ SubdivisionName                 249875
+ BuyerOfficeAOR                   21446
+ YearBuilt                          356
+ StreetNumberNumeric                445
+ ListingId                            0
+ BathroomsTotalInteger               69
+ City                               310
+ TaxYear                         397603
+ BuildingAreaTotal               369810
+ BedroomsTotal                       11
+ ContractStatusChangeDate           589
+ ElementarySchoolDistrict        397603
+ CoBuyerAgentFirstName           361576
+ PurchaseContractDate               194
+ ListingContractDate                  1
+ BelowGradeFinishedArea          395313
+ BusinessType                    397603
+ StateOrProvince                      0
+ CoveredSpaces                   397603
+ MiddleOrJuniorSchool            344273
+ FireplaceYN                        316
+ Stories                          61503
+ HighSchool                      328353
+ Levels                           38569
+ LotSizeDimensions               378282
+ LotSizeArea                      30863
+ MainLevelBedrooms               166841
+ NewConstructionYN                29453
+ GarageSpaces                     17053
+ HighSchoolDistrict              108857
+ PostalCode                           2
+ AssociationFee                   90998
+ LotSizeSquareFeet                30987
+ MiddleOrJuniorSchoolDistrict    397603
+ OriginatingSystemName           358351
+ OriginatingSystemSubName        358351
+ BuyerAgencyCompensationType     351467
+ BuyerAgencyCompensation         351478
+ latfilled                       333719
+ lonfilled                       333719
+ dtype: int64
+ 
+
+"""
+
+
+# Sold Residential Missing Percentage
+
+import pandas as pd
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
+pd.set_option('display.width', None)
+pd.set_option('display.max_colwidth', None)
+
+sold = pd.read_csv('C:/IDX EXCHANGE/Sold_combined.csv', encoding = 'latin1', low_memory=False)
+sold_residential = pd.read_csv ('C:/IDX EXCHANGE/Sold_Residential.csv', encoding = 'latin1', low_memory=False)
+
+# Calculate missing counts and percentages
+missing_counts = sold_residential.isnull().sum()
+missing_percentages = (missing_counts / len(sold_residential)) * 100
+
+# Combine into a DataFrame
+missing_df = pd.DataFrame({
+    'Sold Residential Missing Count': missing_counts,
+    'Sold Residential Missing Percentage': missing_percentages
+})
+
+print(missing_df)
+
+#Distribution Summary
+"""
+#ClosePrice, LivingArea, and
+#DaysOnMarket
+import pandas as pd
+pd.set_option('display.float_format', '{:.2f}'.format)
+
+sold = pd.read_csv('C:/IDX EXCHANGE/Sold_combined.csv', encoding = 'latin1', low_memory=False)
+sold_residential = pd.read_csv ('C:/IDX EXCHANGE/Sold_Residential.csv', encoding = 'latin1', low_memory=False)
+listing = pd.read_csv ('C:/IDX EXCHANGE/Listing_combined.csv', encoding = 'latin1', low_memory=False)
+listing_residential = pd.read_csv('C:/IDX EXCHANGE/Listing_Residential.csv', encoding ='latin1', low_memory=False)
+
+sold_summary = sold[['ClosePrice', 'LivingArea', 'DaysOnMarket']].describe()
+sold_summary_median = sold[['ClosePrice', 'LivingArea', 'DaysOnMarket']].median()
+print (sold_summary)
+print (sold_summary_median)
+"""
+
+#Flagging
+import pandas as pd
+sold = pd.read_csv('C:/IDX EXCHANGE/Sold_combined.csv', encoding = 'latin1', low_memory=False)
+sold_residential = pd.read_csv ('C:/IDX EXCHANGE/Sold_Residential.csv', encoding = 'latin1', low_memory=False)
+listing = pd.read_csv ('C:/IDX EXCHANGE/Listing_combined.csv', encoding = 'latin1', low_memory=False)
+listing_residential = pd.read_csv('C:/IDX EXCHANGE/Listing_Residential.csv', encoding ='latin1', low_memory=False)
+#calculate missing stats
+missing_counts = sold_residential.isnull().sum()
+missing_percent = (missing_counts / len(sold_residential)) * 100
+
+#create summary DataFrame
+missing_summary = pd.DataFrame({
+    'Column': sold_residential.columns,
+    'Missing_Count': missing_counts,
+    'Missing_Percent': missing_percent,
+    'Flag_>90%': missing_percent > 90
+    })
+
+#filter to show only flagged columns
+flagged = missing_summary[missing_summary['Flag_>90%'] == True]
+print(flagged)
+
+#drop missing value over 90
+cols_to_drop = flagged['Column'].tolist()
+sold_residential_cleaned = sold_residential.drop(columns=cols_to_drop)
+print (f'\nDropped{len(cols_to_drop)}colummns from sold_residential')
+print(f'New Shape: {sold_residential_cleaned.shape}')
+print(f'Columns: {sold_residential_cleaned.columns}')
+
+cols_to_drop = flagged['Column'].tolist()
+listing_residential_cleaned = listing_residential.drop(columns=cols_to_drop)
+print (f'\nDropped{len(cols_to_drop)}colummns from listing_residential')
+
+sold_residential_cleaned.to_csv("Sold_Residential_Cleaned.csv", index= False)
+
+#Mortage Rate enrichment
+import pandas as pd
+sold = pd.read_csv('C:/IDX EXCHANGE/Sold_Residential_Cleaned.csv', encoding = 'latin1', low_memory=False)
+listings = pd.read_csv ('C:/IDX EXCHANGE/Listing_Residential_Cleaned.csv', encoding = 'latin1', low_memory=False)
+
+url = "https://fred.stlouisfed.org/graph/fredgraph.csv?id=MORTGAGE30US"
+mortgage = pd.read_csv(url, parse_dates=['observation_date'])
+mortgage.columns = ['date', 'rate_30yr_fixed']
+# Step 2 – Resample weekly rates to monthly averages
+mortgage['year_month'] = mortgage['date'].dt.to_period('M')
+mortgage_monthly = (mortgage.groupby('year_month')['rate_30yr_fixed'].mean().reset_index())
+
+# Step 3 – Create a matching year_month key on the MLS datasets
+# Sold dataset — key off CloseDate
+sold['year_month'] = pd.to_datetime(sold['CloseDate']).dt.to_period('M')
+# Listings dataset — key off ListingContractDate
+listings['year_month'] = pd.to_datetime(listings['ListingContractDate']).dt.to_period('M')
+
+# Step 4 – Merge
+sold_with_rates = sold.merge(mortgage_monthly, on='year_month', how='left')
+listings_with_rates = listings.merge(mortgage_monthly, on='year_month', how='left')
+
+# Step 5 – Validate the merge
+# Check for any unmatched rows (rate should not be null)
+print(sold_with_rates['rate_30yr_fixed'].isnull().sum())
+print(listings_with_rates['rate_30yr_fixed'].isnull().sum())
+
+# Preview
+print(sold_with_rates[['CloseDate', 'year_month', 'ClosePrice', 'rate_30yr_fixed']].head())
+print(listings_with_rates[['CloseDate', 'year_month', 'ClosePrice', 'rate_30yr_fixed']].head())
+
+#saving as CSV
+
+sold_with_rates.to_csv("Sold_with_rates.csv", index = False)
+listings_with_rates.to_csv("Listings_with_rates.csv", index = False)
 
