@@ -1,1 +1,211 @@
 
+import pandas as pd
+import os
+import glob
+
+folder_path = "C:/IDX EXCHANGE/raw"
+
+#get csv file
+listing = os.path.join(folder_path,'*Listing*.csv')
+listing_files = glob.glob(listing)
+print(f"Found {len(listing_files)} listing files")
+#listing files
+if listing_files:
+    listing_dfs = [pd.read_csv(f,encoding = 'latin1', low_memory=False) for f in listing_files]
+    combined_listing = pd.concat(listing_dfs, ignore_index=True)
+    combined_listing.to_csv('Listing_combined.csv', index=False)
+    print(f"\n Listing: {len(listing_files)} files, {len(combined_listing)} total rows")
+    
+    for f in listing_files:
+            print(f"   -  {os.path.basename(f)}")
+            
+#filtering property type
+#reading the files
+listing_df = pd.read_csv("Listing_combined.csv", encoding = 'latin1', low_memory= False)
+print(f'Listing Total row: {len(listing_df)}')
+#filter for residential only in listing
+residential_listing = listing_df[listing_df['PropertyType']== 'Residential']
+
+#saving
+residential_listing.to_csv("Listing_Residential.csv", index = False)
+#Print summary
+print (f'Listing Residential Total Rows: {len(residential_listing)}')
+"""
+Listing Total row: 852963
+Listing Residential Total Rows: 540183
+"""
+#DATA STRUCTURE
+import pandas as pd
+
+listing = pd.read_csv ('C:/IDX EXCHANGE/Listing_combined.csv', encoding = 'latin1', low_memory=False)
+listing_residential = pd.read_csv('C:/IDX EXCHANGE/Listing_Residential.csv', encoding ='latin1', low_memory=False)
+print(f'\n Listing Columns: {listing.columns}')
+print(f'\n First couple Listing Rows: {listing.head()}')
+print(f'\n Listing Residential Columns: {listing_residential.columns}')
+print(f'\n Listing Residential First few rows: {listing_residential.head()}')
+"""
+Output:
+    
+Listing Columns: Index(['OriginalListPrice', 'ListingKey', 'ListAgentEmail', 'CloseDate',
+        'ClosePrice', 'ListAgentFirstName', 'ListAgentLastName', 'Latitude',
+        'Longitude', 'UnparsedAddress', 'PropertyType', 'LivingArea',
+        'ListPrice', 'DaysOnMarket', 'ListOfficeName', 'BuyerOfficeName',
+        'CoListOfficeName', 'ListAgentFullName', 'CoListAgentFirstName',
+        'CoListAgentLastName', 'BuyerAgentMlsId', 'BuyerAgentFirstName',
+        'BuyerAgentLastName', 'FireplacesTotal', 'AssociationFeeFrequency',
+        'AboveGradeFinishedArea', 'ListingKeyNumeric', 'MLSAreaMajor',
+        'TaxAnnualAmount', 'CountyOrParish', 'PropertyType.1', 'MlsStatus',
+        'ElementarySchool', 'ListAgentFirstName.1', 'AttachedGarageYN',
+        'ParkingTotal', 'BuilderName', 'PropertySubType', 'LotSizeAcres',
+        'SubdivisionName', 'BuyerOfficeAOR', 'YearBuilt', 'DaysOnMarket.1',
+        'BuyerAgencyCompensationType', 'StreetNumberNumeric', 'LivingArea.1',
+        'ListingId', 'BathroomsTotalInteger', 'City', 'BuyerAgencyCompensation',
+        'TaxYear', 'BuildingAreaTotal', 'BedroomsTotal',
+        'ContractStatusChangeDate', 'Longitude.1', 'ElementarySchoolDistrict',
+        'CoBuyerAgentFirstName', 'PurchaseContractDate', 'ListingContractDate',
+        'BelowGradeFinishedArea', 'BusinessType', 'Latitude.1', 'ListPrice.1',
+        'StateOrProvince', 'CoveredSpaces', 'MiddleOrJuniorSchool',
+        'FireplaceYN', 'Stories', 'HighSchool', 'Levels', 'ListAgentLastName.1',
+        'CloseDate.1', 'LotSizeDimensions', 'LotSizeArea', 'MainLevelBedrooms',
+        'NewConstructionYN', 'GarageSpaces', 'HighSchoolDistrict', 'PostalCode',
+        'BuyerOfficeName.1', 'AssociationFee', 'LotSizeSquareFeet',
+        'MiddleOrJuniorSchoolDistrict', 'UnparsedAddress.1'],
+       dtype='object')
+
+  First couple Listing Rows:    OriginalListPrice  ...              UnparsedAddress.1
+ 0            90000.0  ...                1045 N Azusa 61
+ 1          1500000.0  ...                            NaN
+ 2          1340000.0  ...  2220 Avenue Of The Stars 2704
+ 3          2500000.0  ...                   16 Palisades
+ 4          3150000.0  ...              1615 Waverly Road
+
+ [5 rows x 84 columns]
+
+  Listing Residential Columns: Index(['OriginalListPrice', 'ListingKey', 'ListAgentEmail', 'CloseDate',
+        'ClosePrice', 'ListAgentFirstName', 'ListAgentLastName', 'Latitude',
+        'Longitude', 'UnparsedAddress', 'PropertyType', 'LivingArea',
+        'ListPrice', 'DaysOnMarket', 'ListOfficeName', 'BuyerOfficeName',
+        'CoListOfficeName', 'ListAgentFullName', 'CoListAgentFirstName',
+        'CoListAgentLastName', 'BuyerAgentMlsId', 'BuyerAgentFirstName',
+        'BuyerAgentLastName', 'FireplacesTotal', 'AssociationFeeFrequency',
+        'AboveGradeFinishedArea', 'ListingKeyNumeric', 'MLSAreaMajor',
+        'TaxAnnualAmount', 'CountyOrParish', 'PropertyType.1', 'MlsStatus',
+        'ElementarySchool', 'ListAgentFirstName.1', 'AttachedGarageYN',
+        'ParkingTotal', 'BuilderName', 'PropertySubType', 'LotSizeAcres',
+        'SubdivisionName', 'BuyerOfficeAOR', 'YearBuilt', 'DaysOnMarket.1',
+        'BuyerAgencyCompensationType', 'StreetNumberNumeric', 'LivingArea.1',
+        'ListingId', 'BathroomsTotalInteger', 'City', 'BuyerAgencyCompensation',
+        'TaxYear', 'BuildingAreaTotal', 'BedroomsTotal',
+        'ContractStatusChangeDate', 'Longitude.1', 'ElementarySchoolDistrict',
+        'CoBuyerAgentFirstName', 'PurchaseContractDate', 'ListingContractDate',
+        'BelowGradeFinishedArea', 'BusinessType', 'Latitude.1', 'ListPrice.1',
+        'StateOrProvince', 'CoveredSpaces', 'MiddleOrJuniorSchool',
+        'FireplaceYN', 'Stories', 'HighSchool', 'Levels', 'ListAgentLastName.1',
+        'CloseDate.1', 'LotSizeDimensions', 'LotSizeArea', 'MainLevelBedrooms',
+        'NewConstructionYN', 'GarageSpaces', 'HighSchoolDistrict', 'PostalCode',
+        'BuyerOfficeName.1', 'AssociationFee', 'LotSizeSquareFeet',
+        'MiddleOrJuniorSchoolDistrict', 'UnparsedAddress.1'],
+       dtype='object')
+
+  Listing Residential First few rows:    OriginalListPrice  ...              UnparsedAddress.1
+ 0          1340000.0  ...  2220 Avenue Of The Stars 2704
+ 1          2500000.0  ...                   16 Palisades
+ 2          3150000.0  ...              1615 Waverly Road
+ 3          3090000.0  ...         2250 Indian Creek Road
+ 4         12725000.0  ...                317 E. Bayfront
+ 
+    
+"""
+
+#Property Type
+import pandas as pd
+
+
+listing = pd.read_csv ('C:/IDX EXCHANGE/Listing_combined.csv', encoding = 'latin1', low_memory=False)
+listing_residential = pd.read_csv('C:/IDX EXCHANGE/Listing_Residential.csv', encoding ='latin1', low_memory=False)
+
+property_categories = listing['PropertyType'].unique()
+print (property_categories)
+
+#DATA COMPLETENESS
+import pandas as pd
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
+pd.set_option('display.width', None)
+pd.set_option('display.max_colwidth', None)
+
+listing = pd.read_csv ('C:/IDX EXCHANGE/Listing_combined.csv', encoding = 'latin1', low_memory=False)
+listing_residential = pd.read_csv('C:/IDX EXCHANGE/Listing_Residential.csv', encoding ='latin1', low_memory=False)
+
+
+print("Residential Listing Missing:")
+print(listing_residential.isnull().sum())
+print ("Listing Missing:")
+print(listing.isnull().sum())
+
+#LISTING RESIDENTIAL MISSING PERCENTAGE
+import pandas as pd
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
+pd.set_option('display.width', None)
+pd.set_option('display.max_colwidth', None)
+
+sold = pd.read_csv('C:/IDX EXCHANGE/Sold_combined.csv', encoding = 'latin1', low_memory=False)
+sold_residential = pd.read_csv ('C:/IDX EXCHANGE/Sold_Residential.csv', encoding = 'latin1', low_memory=False)
+listing = pd.read_csv ('C:/IDX EXCHANGE/Listing_combined.csv', encoding = 'latin1', low_memory=False)
+listing_residential = pd.read_csv('C:/IDX EXCHANGE/Listing_Residential.csv', encoding ='latin1', low_memory=False)
+# Calculate missing counts and percentages
+missing_counts = listing_residential.isnull().sum()
+missing_percentages = (missing_counts / len(listing_residential)) * 100
+
+# Combine into a DataFrame
+missing_df = pd.DataFrame({
+    'Missing Count': missing_counts,
+    'Missing Percentage': missing_percentages
+})
+
+print(missing_df)
+
+#FLAGGING
+import pandas as pd
+
+listing = pd.read_csv ('C:/IDX EXCHANGE/Listing_combined.csv', encoding = 'latin1', low_memory=False)
+listing_residential = pd.read_csv('C:/IDX EXCHANGE/Listing_Residential.csv', encoding ='latin1', low_memory=False)
+#calculate missing stats
+missing_counts = listing_residential.isnull().sum()
+missing_percent = (missing_counts / len(listing_residential)) * 100
+
+#create summary DataFrame
+missing_summary = pd.DataFrame({
+    'Column': listing_residential.columns,
+    'Missing_Count': missing_counts,
+    'Missing_Percent': missing_percent,
+    'Flag_>90%': missing_percent > 90
+    })
+
+#filter to show only flagged columns
+flagged = missing_summary[missing_summary['Flag_>90%'] == True]
+print(flagged)
+
+missing_counts = listing_residential.isnull().sum()
+missing_percent = (missing_counts / len(listing_residential)) * 100
+
+#create summary DataFrame
+missing_summary = pd.DataFrame({
+    'Column': listing_residential.columns,
+    'Missing_Count': missing_counts,
+    'Missing_Percent': missing_percent,
+    'Flag_>90%': missing_percent > 90
+    })
+
+#filter to show only flagged columns
+flagged = missing_summary[missing_summary['Flag_>90%'] == True]
+print(flagged)
+
+cols_to_drop = flagged['Column'].tolist()
+listing_residential_cleaned = listing_residential.drop(columns=cols_to_drop)
+print (f'\nDropped{len(cols_to_drop)}colummns from listing_residential')
+
+print(f'Columns: {listing_residential_cleaned.columns}')
+listing_residential_cleaned.to_csv("Listing_Residential_Cleaned.csv", index= False)
+
