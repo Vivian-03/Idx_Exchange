@@ -206,6 +206,41 @@ cols_to_drop = flagged['Column'].tolist()
 listing_residential_cleaned = listing_residential.drop(columns=cols_to_drop)
 print (f'\nDropped{len(cols_to_drop)}colummns from listing_residential')
 
+#WEEK 4
+
+#converting date fields to datetime format for sold
+datefields_before = listing_residential['CloseDate'].dtypes
+print (datefields_before)
+listing_residential['CloseDate'] = pd.to_datetime(listing_residential['CloseDate'])
+
+
+missing_counts = listing_residential.isnull().sum()
+missing_percentages = (missing_counts / len(listing_residential)) * 100
+
+# Combine into a DataFrame
+missing_df = pd.DataFrame({
+    'Missing Count': missing_counts,
+    'Missing Percentage': missing_percentages
+})
+
+print(missing_df)
+
+#Removing unnecesary columns
+print(f'Number of columns Listing: {len(listing_residential.columns)}')
+cols_to_drop = listing_residential[['Longitude', 'Latitude', 'MiddleOrJuniorSchool', 'HighSchool', 'ElementarySchool', 'ClosePrice', 'CoListOfficeName', 'CoListAgentFirstName', 'CoListAgentLastName', 'BuyerAgencyCompensationType', 'BuyerAgencyCompensation','Longitude.1','Latitude.1']]
+listing_residential_cleaned = listing_residential.drop(columns=cols_to_drop)
+print (f'\nDropped {len(listing_residential_cleaned)} colummns from listing')
+print (f'Number of columns after dropping : {len(listing_residential_cleaned.columns)}')
+date_columns = ['CloseDate', 'ContractStatusChangeDate', 'PurchaseContractDate', 'ListingContractDate']
+for col in date_columns:
+    listing_residential_cleaned[col] = listing_residential_cleaned[col].replace('N/A', pd.NA)
+    listing_residential_cleaned[col] = pd.to_datetime(listing_residential_cleaned[col], errors='coerce')
+#print data type after cleaning
+
+print(listing_residential_cleaned.dtypes)
+#listing_residential_cleaned.to_csv("Listing_Residential_Cleaned.csv", index= False)
+"""
+
 print(f'Columns: {listing_residential_cleaned.columns}')
 listing_residential_cleaned.to_csv("Listing_Residential_Cleaned.csv", index= False)
 
