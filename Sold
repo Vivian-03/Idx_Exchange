@@ -714,3 +714,127 @@ missing_df = pd.DataFrame({
     'Sold Missing Percentage': missing_percentages
 })
 
+#### WEEK 5 ######
+import pandas as pd
+import numpy as np
+sold = pd.read_csv('C:/IDX EXCHANGE/Sold_Cleaned.csv', encoding = 'latin1', low_memory=False)
+
+
+# First, ensure all date columns are datetime type
+date_columns = ['ListingContractDate', 'PurchaseContractDate', 'CloseDate']
+for col in date_columns:
+    sold[col] = pd.to_datetime(sold[col], errors='coerce')
+
+# Create boolean flag columns
+# Flag 1: ListingContractDate should NOT be after CloseDate
+sold['listing_after_close_flag'] = (
+    (sold['ListingContractDate'] > sold['CloseDate']) &
+    (sold['ListingContractDate'].notna()) &
+    (sold['CloseDate'].notna())
+)
+
+# Flag 2: PurchaseContractDate should NOT be after CloseDate
+sold['purchase_after_close_flag'] = (
+    (sold['PurchaseContractDate'] > sold['CloseDate']) &
+    (sold['PurchaseContractDate'].notna()) &
+    (sold['CloseDate'].notna())
+)
+
+# Flag 3: Overall negative timeline (any order violation)
+# This flags records where ListingContractDate is after PurchaseContractDate OR any date is after CloseDate
+sold['negative_timeline_flag'] = (
+    (sold['listing_after_close_flag'] == True) |
+    (sold['purchase_after_close_flag'] == True) |
+    ((sold['ListingContractDate'] > sold['PurchaseContractDate']) &
+     (sold['ListingContractDate'].notna()) &
+     (sold['PurchaseContractDate'].notna()))
+)
+
+
+# This flags when dates are not in order: Listing <= Purchase <= Close
+sold['negative_timeline_flag'] = (
+    ~(
+        (sold['ListingContractDate'] <= sold['PurchaseContractDate']) &
+        (sold['PurchaseContractDate'] <= sold['CloseDate'])
+    ) &
+    (sold['ListingContractDate'].notna()) &
+    (sold['PurchaseContractDate'].notna()) &
+    (sold['CloseDate'].notna())
+)
+
+# View results
+print("Validation Flags Created:")
+print(f"listing_after_close_flag: {(sold['listing_after_close_flag'] == True).sum()} violations")
+print(f"purchase_after_close_flag: {(sold['purchase_after_close_flag'] == True).sum()} violations")
+print(f"negative_timeline_flag: {(sold['negative_timeline_flag'] == True).sum()} violations")
+
+# Show sample of violations
+violations = sold[
+    sold['negative_timeline_flag'] == True
+][['ListingContractDate', 'PurchaseContractDate', 'CloseDate', 
+   'listing_after_close_flag', 'purchase_after_close_flag', 'negative_timeline_flag']]
+
+print("\nSample violations:")
+print(violations.head(10))
+
+
+
+
+# First, ensure coordinates are numeric
+sold['Latitude'] = pd.to_numeric(sold['Latitude'], errors='coerce')
+sold['Longitude'] = pd.to_numeric(sold['Longitude'], errors='coerce')
+
+# 1. Flag records with missing coordinates
+sold['missing_coordinates_flag'] = (
+    sold['Latitude'].isna() | 
+    sold['Longitude'].isna()
+)
+
+# 2. Flag Latitude = 0 or Longitude = 0 (sentinel null values)
+sold['zero_coordinates_flag'] = (
+    (sold['Latitude'] == 0) | 
+    (sold['Longitude'] == 0)
+)
+
+# 3. Flag Longitude > 0 errors (California coordinates should be negative)
+sold['longitude_positive_flag'] = (
+    sold['Longitude'] > 0
+)
+
+# 4. Flag out-of-state or implausible coordinates for California
+# Typical California bounds:
+# Latitude: 32.5 to 42.0 (roughly)
+# Longitude: -124.5 to -114.0 (negative values)
+sold['out_of_state_flag'] = (
+    (
+        # Latitude out of California range
+        (sold['Latitude'] < 32.5) |
+        (sold['Latitude'] > 42.0) |
+        # Longitude out of California range 
+        (sold['Longitude'] > -114.0) |
+        (sold['Longitude'] < -124.5)
+    ) &
+    sold['Latitude'].notna() &
+    sold['Longitude'].notna()
+)
+
+# 5. Create a combined geographic issues flag
+sold['geographic_issues_flag'] = (
+    sold['missing_coordinates_flag'] |
+    sold['zero_coordinates_flag'] |
+    sold['longitude_positive_flag'] |
+    sold['out_of_state_flag']
+)
+
+# Print summary statistics
+print("=" * 60)
+print("GEOGRAPHIC DATA VALIDATION SUMMARY")
+print("=" * 60)
+print(f"Total records: {len(sold)}")
+print(f"\nMissing coordinates: {sold['missing_coordinates_flag'].sum()}")
+print(f"Zero coordinates: {sold['zero_coordinates_flag'].sum()}")
+print(f"Longitude > 0 (should be negative): {sold['longitude_positive_flag'].sum()}")
+print(f"Out of state/implausible: {sold['out_of_state_flag'].sum()}")
+print(f"\nTotal records with geographic issues: {sold['geographic_issues_flag'].sum()}")
+
+sold.to_csv("Sold_Cleaned.csv")
