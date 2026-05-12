@@ -244,3 +244,674 @@ print(listing_residential_cleaned.dtypes)
 print(f'Columns: {listing_residential_cleaned.columns}')
 listing_residential_cleaned.to_csv("Listing_Residential_Cleaned.csv", index= False)
 
+
+#WEEK 6
+# -*- coding: utf-8 -*-
+"""
+Created on Mon May 11 10:39:57 2026
+
+@author: linv5
+"""
+
+
+import pandas as pd
+import numpy as np
+listing = pd.read_csv("C:\IDX EXCHANGE\Listing_FINAL_CLEANED.csv", encoding = 'latin1', low_memory=False)
+
+
+# Convert date columns to datetime
+listing['ListingContractDate'] = pd.to_datetime(listing['ListingContractDate'], errors='coerce')
+listing['PurchaseContractDate'] = pd.to_datetime(listing['PurchaseContractDate'], errors='coerce')
+listing['CloseDate'] = pd.to_datetime(listing['CloseDate'], errors='coerce')
+
+# Calculate price ratios
+listing['price_ratio'] = listing['ClosePrice'] / listing['OriginalListPrice']
+listing['price_per_sq_ft'] = (listing['ClosePrice'] / listing['LivingArea']).where(listing['LivingArea'] > 0, np.nan)
+listing['close_to_original_list_ratio'] = listing['ClosePrice']/listing['OriginalListPrice']
+# Calculate days on market 
+listing['days_on_market'] = listing['DaysOnMarket']
+
+# Extract date components
+listing['Year'] = listing['CloseDate'].dt.year
+listing['Month'] = listing['CloseDate'].dt.month
+listing['YrMo'] = listing['CloseDate'].dt.strftime('%Y-%m')
+
+# Calculate days between dates 
+listing['listing_to_contract_days'] = (listing['PurchaseContractDate'] - listing['ListingContractDate']).dt.days
+listing['contract_to_close_days'] = (listing['CloseDate'] - listing['PurchaseContractDate']).dt.days  
+
+
+
+
+
+
+
+# print(f"Price Ratio: {sold['price_ratio']}")
+# print(f"Price per SQ FT: {sold['price_per_sq_ft']}")
+# print(f" Year: {sold['Year']}")
+# print(f" Month: {sold['Month']}")
+# print(f"Year Month: {sold['YrMo'] }")
+# print(f"Close to Original List Ratio: {sold['close_to_original_list_ratio']}")
+# print(f" listing to Contract Days: {sold['listing_to_contract_days']}")
+# print(f" Contract to Close Days: {sold['contract_to_close_days']}")
+
+
+#GROUP ANALYSIS
+metrics = ['price_ratio', 'price_per_sq_ft', 'close_to_original_list_ratio', 
+           'days_on_market', 'listing_to_contract_days', 'contract_to_close_days', 'ClosePrice']
+
+
+# Create a subset DataFrame with only the calculated columns
+metrics_df = listing[['price_ratio', 'price_per_sq_ft', 'Year', 'Month', 'YrMo', 
+                   'close_to_original_list_ratio', 'listing_to_contract_days', 
+                   'contract_to_close_days']].head(10)
+
+print(metrics_df)
+
+
+
+
+""
+
+#Group by PropertyType and PropertySubType
+print('Analysis by Property Type and Subtype')
+print("-"*80)
+
+property_type = listing.groupby('PropertyType')[metrics].agg(['mean', 'median', 'count', 'std'])
+print("\nBy PropertyType:")
+print(property_type)
+
+property_subtype = listing.groupby('PropertySubType')[metrics].agg(['mean', 'median','count', 'std'])
+print("\nBy PropertySubType:")
+print(property_subtype)
+
+#combining
+
+property_cross = listing.groupby(['PropertyType', 'PropertySubType'])[metrics].agg(['mean', 'count'])
+print('\By PropertyType and PropertySubtype Combined:')
+print (property_cross)
+
+#GROUP BY CountyOrParish and MLSAreaMajor
+print("\n" + "-"*80)
+print("ANALYSIS BY GEOGRAPHIC DIMENSIONS")
+print("="*80)
+
+# By CountyOrParish
+county_stats = listing.groupby('CountyOrParish')[metrics].agg(['mean', 'median', 'count', 'std'])
+print("\nBy CountyOrParish:")
+print(county_stats)
+
+# By MLSAreaMajor
+mls_area_stats = listing.groupby('MLSAreaMajor')[metrics].agg(['mean', 'median', 'count', 'std'])
+print("\nBy MLSAreaMajor:")
+print(mls_area_stats)
+
+# Top 10 counties by transaction volume
+top_counties = listing['CountyOrParish'].value_counts().head(10)
+print("\nTop 10 Counties by Transaction Volume:")
+print(top_counties)
+
+#  GROUP BY OFFICES (Competitive Intelligence)
+print("\n" + "="*80)
+print("COMPETITIVE INTELLIGENCE - OFFICE ANALYSIS")
+print("="*80)
+
+# By ListOfficeName
+listing_office_stats = listing.groupby('ListOfficeName')[metrics].agg(['mean', 'median', 'count'])
+print("\nBy ListOfficeName (Top 20 by volume):")
+listing_office_stats_sorted = listing_office_stats.sort_values(('ClosePrice', 'count'), ascending=False)
+print(listing_office_stats_sorted.head(20))
+
+# By BuyerOfficeName
+buyer_office_stats = listing.groupby('BuyerOfficeName')[metrics].agg(['mean', 'median', 'count'])
+print("\nBy BuyerOfficeName (Top 20 by volume):")
+buyer_office_stats_sorted = buyer_office_stats.sort_values(('ClosePrice', 'count'), ascending=False)
+print(buyer_office_stats_sorted.head(20))
+
+# Top 10 Listing Offices by average price
+top_listing_by_price = listing.groupby('ListOfficeName')['ClosePrice'].agg(['mean', 'count'])
+top_listing_by_price = top_listing_by_price[top_listing_by_price['count'] >= 5].sort_values('mean', ascending=False)
+print("\nTop 10 Listing Offices by Average Close Price (min 5 transactions):")
+print(top_listing_by_price.head(10))
+
+# 4. TIME-BASED ANALYSIS BY DIMENSIONS
+print("\n" + "="*80)
+print("TIME-BASED ANALYSIS BY YEAR")
+print("="*80)
+
+# Yearly trends by PropertyType
+yearly_property_trends = listing.groupby(['Year', 'PropertyType'])['price_ratio'].mean().unstack()
+print("\nYearly Price Ratio by PropertyType:")
+print(yearly_property_trends)
+
+# Yearly trends by County
+yearly_county_trends = listing.groupby(['Year', 'CountyOrParish'])['price_per_sq_ft'].mean().unstack()
+print("\nYearly Price per Sq Ft by County (Top 5 counties):")
+print(yearly_county_trends.head())
+
+# 6. SUMMARY STATISTICS (Quick Overview)
+print("\n" + "="*80)
+print("QUICK SUMMARY STATISTICS")
+print("="*80)
+
+summary_stats = {
+    'Total Transactions': len(listing),
+    'Total Volume ($)': listing['ClosePrice'].sum(),
+    'Average Price ($)': listing['ClosePrice'].mean(),
+    'Median Price ($)': listing['ClosePrice'].median(),
+    'Average Price per Sq Ft ($)': listing['price_per_sq_ft'].mean(),
+    'Average Price Ratio': listing['price_ratio'].mean(),
+    'Average Days on Market': listing['days_on_market'].mean(),
+}
+for key, value in summary_stats.items():
+    print(f"{key}: {value:,.0f}" if isinstance(value, (int, float)) else f"{key}: {value}")
+
+# print (summary_stats)
+listing.to_csv("Listing_FINAL_CLEANED.csv", index= False)
+
+
+
+
+
+"""
+
+                                                      median  count   
+ListOfficeName                                                        
+Compass                                                22.00  32907   
+Coldwell Banker Realty                                 22.00  22492   
+Keller Williams Realty                                 26.00   9112   
+First Team Real Estate                                 25.00   7263   
+Berkshire Hathaway HomeServices California Properties  24.00   6645   
+Real Broker                                            25.00   5471   
+eXp Realty of California Inc                           27.00   5359   
+Equity Union                                           20.00   4411   
+Intero Real Estate Services                            25.00   4143   
+Century 21 Masters                                     31.00   3816   
+The Agency                                             20.00   3423   
+eXp Realty of California, Inc.                         27.00   3657   
+Sotheby's International Realty                         21.00   2936   
+Rodeo Realty                                           20.00   2700   
+Coldwell Banker West                                   25.00   2745   
+Berkshire Hathaway HomeService                         21.00   2713   
+Pinnacle Estate Properties, Inc.                       21.00   2558   
+Seven Gables Real Estate                               25.00   2455   
+COMPASS                                                21.00   2395   
+Redfin Corporation                                     29.00   2311   
+
+                                                      ClosePrice             \
+                                                            mean     median   
+ListOfficeName                                                                
+Compass                                               1452576.75 1060000.00   
+Coldwell Banker Realty                                1254689.18  870000.00   
+Keller Williams Realty                                 868416.20  780000.00   
+First Team Real Estate                                 836027.95  761250.00   
+Berkshire Hathaway HomeServices California Properties 1132300.28  727250.00   
+Real Broker                                            851354.65  741575.00   
+eXp Realty of California Inc                           818800.76  700000.00   
+Equity Union                                           779896.35  650000.00   
+Intero Real Estate Services                           1578918.01 1320000.00   
+Century 21 Masters                                     599470.72  580000.00   
+The Agency                                            1549599.57  960000.00   
+eXp Realty of California, Inc.                         826989.82  707250.00   
+Sotheby's International Realty                        1309956.99  961000.00   
+Rodeo Realty                                           808753.64  625000.00   
+Coldwell Banker West                                  2444091.70  785000.00   
+Berkshire Hathaway HomeService                         947238.52  710000.00   
+Pinnacle Estate Properties, Inc.                       832841.21  803500.00   
+Seven Gables Real Estate                              1346654.67  850000.00   
+COMPASS                                               1041353.40  805000.00   
+Redfin Corporation                                     904672.78  790000.00   
+
+                                                              
+                                                       count  
+ListOfficeName                                                
+Compass                                                34339  
+Coldwell Banker Realty                                 23228  
+Keller Williams Realty                                  9163  
+First Team Real Estate                                  7266  
+Berkshire Hathaway HomeServices California Properties   6966  
+Real Broker                                             5525  
+eXp Realty of California Inc                            5402  
+Equity Union                                            4626  
+Intero Real Estate Services                             4143  
+Century 21 Masters                                      3818  
+The Agency                                              3728  
+eXp Realty of California, Inc.                          3666  
+Sotheby's International Realty                          3259  
+Rodeo Realty                                            2900  
+Coldwell Banker West                                    2745  
+Berkshire Hathaway HomeService                          2716  
+Pinnacle Estate Properties, Inc.                        2560  
+Seven Gables Real Estate                                2455  
+COMPASS                                                 2395  
+Redfin Corporation                                      2311  
+
+By BuyerOfficeName (Top 20 by volume):
+                                                      price_ratio         \
+                                                             mean median   
+BuyerOfficeName                                                            
+Compass                                                      1.63   1.00   
+Coldwell Banker Realty                                       1.54   1.00   
+NONMEMBER MRML                                               1.69   0.98   
+None MRML                                                    1.62   1.00   
+Keller Williams Realty                                       8.42   1.00   
+Real Broker                                                  1.44   1.00   
+First Team Real Estate                                     148.84   1.00   
+eXp Realty of California Inc                                 1.02   0.99   
+Berkshire Hathaway HomeServices California Properties        1.27   0.99   
+eXp Realty of California, Inc.                               1.72   0.99   
+Equity Union                                               406.06   0.98   
+The Agency                                                   0.98   0.99   
+Intero Real Estate Services                                  1.02   1.00   
+Redfin Corporation                                           1.58   0.99   
+Sotheby's International Realty                               0.97   0.98   
+Redfin                                                       1.66   1.00   
+Pinnacle Real Estate Group                                   4.86   1.00   
+Coldwell Banker West                                         4.06   1.00   
+Rodeo Realty                                                 5.01   0.99   
+Century 21 Masters                                           3.00   0.99   
+
+                                                             price_per_sq_ft  \
+                                                       count            mean   
+BuyerOfficeName                                                                
+Compass                                                32536          654.90   
+Coldwell Banker Realty                                 19492          627.59   
+NONMEMBER MRML                                         11528          291.02   
+None MRML                                               8232          215.25   
+Keller Williams Realty                                  7464          656.22   
+Real Broker                                             6857          487.85   
+First Team Real Estate                                  6599          454.34   
+eXp Realty of California Inc                            5962          521.04   
+Berkshire Hathaway HomeServices California Properties   5660          498.54   
+eXp Realty of California, Inc.                          4785          587.08   
+Equity Union                                            4446          365.32   
+The Agency                                              3568          560.56   
+Intero Real Estate Services                             3390          847.75   
+Redfin Corporation                                      3074          810.64   
+Sotheby's International Realty                          2930          547.04   
+Redfin                                                  2738          741.52   
+Pinnacle Real Estate Group                              2566          473.80   
+Coldwell Banker West                                    2505         1221.87   
+Rodeo Realty                                            2484          381.91   
+Century 21 Masters                                      2374          348.56   
+
+                                                                     \
+                                                      median  count   
+BuyerOfficeName                                                       
+Compass                                               638.11  31418   
+Coldwell Banker Realty                                546.33  18884   
+NONMEMBER MRML                                        259.50  10149   
+None MRML                                               3.20   7727   
+Keller Williams Realty                                456.14   7082   
+Real Broker                                           490.49   6613   
+First Team Real Estate                                497.06   6386   
+eXp Realty of California Inc                          513.36   5666   
+Berkshire Hathaway HomeServices California Properties 465.66   5382   
+eXp Realty of California, Inc.                        465.34   4513   
+Equity Union                                          361.73   4258   
+The Agency                                            567.93   3416   
+Intero Real Estate Services                           787.11   3324   
+Redfin Corporation                                    536.49   3024   
+Sotheby's International Realty                        553.21   2757   
+Redfin                                                695.67   2686   
+Pinnacle Real Estate Group                            503.90   2449   
+Coldwell Banker West                                  512.68   2386   
+Rodeo Realty                                          385.20   2369   
+Century 21 Masters                                    336.81   2173   
+
+                                                      close_to_original_list_ratio  \
+                                                                              mean   
+BuyerOfficeName                                                                      
+Compass                                                                       1.63   
+Coldwell Banker Realty                                                        1.54   
+NONMEMBER MRML                                                                1.69   
+None MRML                                                                     1.62   
+Keller Williams Realty                                                        8.42   
+Real Broker                                                                   1.44   
+First Team Real Estate                                                      148.84   
+eXp Realty of California Inc                                                  1.02   
+Berkshire Hathaway HomeServices California Properties                         1.27   
+eXp Realty of California, Inc.                                                1.72   
+Equity Union                                                                406.06   
+The Agency                                                                    0.98   
+Intero Real Estate Services                                                   1.02   
+Redfin Corporation                                                            1.58   
+Sotheby's International Realty                                                0.97   
+Redfin                                                                        1.66   
+Pinnacle Real Estate Group                                                    4.86   
+Coldwell Banker West                                                          4.06   
+Rodeo Realty                                                                  5.01   
+Century 21 Masters                                                            3.00   
+
+                                                                     \
+                                                      median  count   
+BuyerOfficeName                                                       
+Compass                                                 1.00  32536   
+Coldwell Banker Realty                                  1.00  19492   
+NONMEMBER MRML                                          0.98  11528   
+None MRML                                               1.00   8232   
+Keller Williams Realty                                  1.00   7464   
+Real Broker                                             1.00   6857   
+First Team Real Estate                                  1.00   6599   
+eXp Realty of California Inc                            0.99   5962   
+Berkshire Hathaway HomeServices California Properties   0.99   5660   
+eXp Realty of California, Inc.                          0.99   4785   
+Equity Union                                            0.98   4446   
+The Agency                                              0.99   3568   
+Intero Real Estate Services                             1.00   3390   
+Redfin Corporation                                      0.99   3074   
+Sotheby's International Realty                          0.98   2930   
+Redfin                                                  1.00   2738   
+Pinnacle Real Estate Group                              1.00   2566   
+Coldwell Banker West                                    1.00   2505   
+Rodeo Realty                                            0.99   2484   
+Century 21 Masters                                      0.99   2374   
+
+                                                      days_on_market         \
+                                                                mean median   
+BuyerOfficeName                                                               
+Compass                                                        36.41  18.00   
+Coldwell Banker Realty                                         38.87  20.00   
+NONMEMBER MRML                                                 57.75  31.00   
+None MRML                                                      48.32  28.00   
+Keller Williams Realty                                         38.79  20.00   
+Real Broker                                                    36.70  20.00   
+First Team Real Estate                                         34.87  17.00   
+eXp Realty of California Inc                                   42.17  22.00   
+Berkshire Hathaway HomeServices California Properties          44.29  25.00   
+eXp Realty of California, Inc.                                 38.79  20.00   
+Equity Union                                                   45.45  29.00   
+The Agency                                                     43.75  23.00   
+Intero Real Estate Services                                    27.56  13.00   
+Redfin Corporation                                             38.47  21.00   
+Sotheby's International Realty                                 52.47  28.00   
+Redfin                                                         31.18  17.00   
+Pinnacle Real Estate Group                                     34.66  18.00   
+Coldwell Banker West                                           31.26  17.00   
+Rodeo Realty                                                   41.09  27.00   
+Century 21 Masters                                             46.05  25.00   
+
+                                                              \
+                                                       count   
+BuyerOfficeName                                                
+Compass                                                32674   
+Coldwell Banker Realty                                 19575   
+NONMEMBER MRML                                         11591   
+None MRML                                               8268   
+Keller Williams Realty                                  7472   
+Real Broker                                             6858   
+First Team Real Estate                                  6600   
+eXp Realty of California Inc                            5981   
+Berkshire Hathaway HomeServices California Properties   5662   
+eXp Realty of California, Inc.                          4786   
+Equity Union                                            4446   
+The Agency                                              3569   
+Intero Real Estate Services                             3425   
+Redfin Corporation                                      3074   
+Sotheby's International Realty                          2947   
+Redfin                                                  2739   
+Pinnacle Real Estate Group                              2570   
+Coldwell Banker West                                    2505   
+Rodeo Realty                                            2484   
+Century 21 Masters                                      2376   
+
+                                                      listing_to_contract_days  \
+                                                                          mean   
+BuyerOfficeName                                                                  
+Compass                                                                  41.05   
+Coldwell Banker Realty                                                   45.00   
+NONMEMBER MRML                                                           66.55   
+None MRML                                                                56.37   
+Keller Williams Realty                                                   47.27   
+Real Broker                                                              46.41   
+First Team Real Estate                                                   44.99   
+eXp Realty of California Inc                                             48.88   
+Berkshire Hathaway HomeServices California Properties                    51.55   
+eXp Realty of California, Inc.                                           47.73   
+Equity Union                                                             53.05   
+The Agency                                                               48.43   
+Intero Real Estate Services                                              28.19   
+Redfin Corporation                                                       47.40   
+Sotheby's International Realty                                           54.78   
+Redfin                                                                   34.94   
+Pinnacle Real Estate Group                                               42.91   
+Coldwell Banker West                                                     39.08   
+Rodeo Realty                                                             45.39   
+Century 21 Masters                                                       55.01   
+
+                                                                     \
+                                                      median  count   
+BuyerOfficeName                                                       
+Compass                                                21.00  31285   
+Coldwell Banker Realty                                 24.00  18907   
+NONMEMBER MRML                                         37.00  11591   
+None MRML                                              34.00   8258   
+Keller Williams Realty                                 26.00   7415   
+Real Broker                                            27.00   6805   
+First Team Real Estate                                 26.00   6595   
+eXp Realty of California Inc                           28.00   5934   
+Berkshire Hathaway HomeServices California Properties  31.00   5394   
+eXp Realty of California, Inc.                         28.00   4772   
+Equity Union                                           35.00   4215   
+The Agency                                             26.00   3299   
+Intero Real Estate Services                            13.00   3424   
+Redfin Corporation                                     28.00   3071   
+Sotheby's International Realty                         30.00   2625   
+Redfin                                                 20.00   2739   
+Pinnacle Real Estate Group                             25.00   2569   
+Coldwell Banker West                                   23.00   2504   
+Rodeo Realty                                           29.00   2294   
+Century 21 Masters                                     33.00   2371   
+
+                                                      contract_to_close_days  \
+                                                                        mean   
+BuyerOfficeName                                                                
+Compass                                                                23.48   
+Coldwell Banker Realty                                                 22.65   
+NONMEMBER MRML                                                         32.74   
+None MRML                                                              20.51   
+Keller Williams Realty                                                 26.07   
+Real Broker                                                            27.06   
+First Team Real Estate                                                 24.91   
+eXp Realty of California Inc                                           28.19   
+Berkshire Hathaway HomeServices California Properties                  25.06   
+eXp Realty of California, Inc.                                         30.67   
+Equity Union                                                           21.69   
+The Agency                                                             22.74   
+Intero Real Estate Services                                            26.48   
+Redfin Corporation                                                     28.96   
+Sotheby's International Realty                                         22.09   
+Redfin                                                                 26.65   
+Pinnacle Real Estate Group                                             27.26   
+Coldwell Banker West                                                   28.35   
+Rodeo Realty                                                           20.80   
+Century 21 Masters                                                     31.88   
+
+                                                                     \
+                                                      median  count   
+BuyerOfficeName                                                       
+Compass                                                22.00  31287   
+Coldwell Banker Realty                                 21.00  18908   
+NONMEMBER MRML                                         29.00  11591   
+None MRML                                               3.00   8258   
+Keller Williams Realty                                 25.00   7416   
+Real Broker                                            25.00   6805   
+First Team Real Estate                                 25.00   6595   
+eXp Realty of California Inc                           26.00   5934   
+Berkshire Hathaway HomeServices California Properties  23.00   5395   
+eXp Realty of California, Inc.                         27.00   4772   
+Equity Union                                           20.00   4217   
+The Agency                                             21.00   3299   
+Intero Real Estate Services                            25.00   3424   
+Redfin Corporation                                     28.00   3071   
+Sotheby's International Realty                         21.00   2625   
+Redfin                                                 25.00   2739   
+Pinnacle Real Estate Group                             27.00   2569   
+Coldwell Banker West                                   26.00   2505   
+Rodeo Realty                                           18.00   2294   
+Century 21 Masters                                     29.00   2371   
+
+                                                      ClosePrice             \
+                                                            mean     median   
+BuyerOfficeName                                                               
+Compass                                               1383194.64 1028250.00   
+Coldwell Banker Realty                                1230991.92  825000.00   
+NONMEMBER MRML                                         534291.14  419000.00   
+None MRML                                              454988.54    4587.50   
+Keller Williams Realty                                1047679.76  710500.00   
+Real Broker                                            848627.55  710000.00   
+First Team Real Estate                                 804356.40  718000.00   
+eXp Realty of California Inc                           870456.07  745000.00   
+Berkshire Hathaway HomeServices California Properties 1098986.31  710000.00   
+eXp Realty of California, Inc.                         897065.38  681500.00   
+Equity Union                                           756502.16  610000.00   
+The Agency                                            1463524.85  915000.00   
+Intero Real Estate Services                           1498730.22 1295000.00   
+Redfin Corporation                                    1144594.77  830000.00   
+Sotheby's International Realty                        1243579.77  835000.00   
+Redfin                                                1327589.34 1135000.00   
+Pinnacle Real Estate Group                            1010489.68  859000.00   
+Coldwell Banker West                                  1765981.29  760000.00   
+Rodeo Realty                                           853737.15  525000.00   
+Century 21 Masters                                     574565.59  555000.00   
+
+                                                              
+                                                       count  
+BuyerOfficeName                                               
+Compass                                                32674  
+Coldwell Banker Realty                                 19575  
+NONMEMBER MRML                                         11591  
+None MRML                                               8268  
+Keller Williams Realty                                  7472  
+Real Broker                                             6858  
+First Team Real Estate                                  6600  
+eXp Realty of California Inc                            5981  
+Berkshire Hathaway HomeServices California Properties   5662  
+eXp Realty of California, Inc.                          4786  
+Equity Union                                            4446  
+The Agency                                              3569  
+Intero Real Estate Services                             3425  
+Redfin Corporation                                      3074  
+Sotheby's International Realty                          2947  
+Redfin                                                  2739  
+Pinnacle Real Estate Group                              2570  
+Coldwell Banker West                                    2505  
+Rodeo Realty                                            2484  
+Century 21 Masters                                      2376  
+
+Top 10 Listing Offices by Average Close Price (min 5 transactions):
+                                       mean  count
+ListOfficeName                                    
+Black Diamond Real Estate      108844057.14      7
+DRW Services Group, Inc.        57850625.00      8
+Perception Real Estate Group,   50819466.67     12
+American Group                  27497916.67     12
+Coldwell Banker Country Realty  21987725.31     65
+Castlegate Realty Group         20781238.89      9
+Baldwin Property Management     17494365.41     22
+Team One Realty                 17147060.00     25
+USAFC Realty                    15432148.15     27
+Madison Club Properties         10915833.33     12
+
+================================================================================
+TIME-BASED ANALYSIS BY YEAR
+================================================================================
+
+Yearly Price Ratio by PropertyType:
+PropertyType  BusinessOpportunity  CommercialLease  CommercialSale  Land  \
+Year                                                                       
+2024                         0.72            75.16          454.66  0.87   
+2025                         0.76           594.28            0.90  1.13   
+2026                         0.73            12.67         4439.69  1.33   
+
+PropertyType  ManufacturedInPark  Residential  ResidentialIncome  \
+Year                                                               
+2024                        1.10        44.77               1.65   
+2025                        2.10        83.80             142.19   
+2026                        0.91         1.56               0.97   
+
+PropertyType  ResidentialLease  
+Year                            
+2024                      1.30  
+2025                      2.11  
+2026                      1.31  
+
+Yearly Price per Sq Ft by County (Top 5 counties):
+CountyOrParish  Alameda  Alpine  Amador  Butte  Calaveras  Clark  Colusa  \
+Year                                                                       
+2024             699.29  267.12  183.10 249.50     267.12    NaN  192.14   
+2025             774.12     NaN  158.87 247.09     275.10 285.61  208.89   
+2026             673.84     NaN  256.72 237.30     263.84    NaN  171.42   
+
+CountyOrParish  Contra Costa  Del Norte  El Dorado  Foreign Country  Fresno  \
+Year                                                                          
+2024                  513.28      54.69     367.09              NaN  252.67   
+2025                  554.25     390.91     348.95           120.43  253.22   
+2026                  494.70        NaN     242.65              NaN  248.11   
+
+CountyOrParish  Glenn  Humboldt  Imperial   Inyo   Kern  Kings   Lake  Lassen  \
+Year                                                                            
+2024           217.67    364.41    198.95 377.96 317.34 222.94 201.89   66.13   
+2025           251.54    231.41    179.21 296.03 256.92 256.35 190.93  204.37   
+2026           256.54     40.14    156.19    NaN 205.16 220.40 166.98  115.36   
+
+CountyOrParish  Los Angeles  Madera  Marin  Mariposa  Mendocino  Merced  \
+Year                                                                      
+2024                 428.82  256.26 678.51    286.46     433.79  257.44   
+2025                 426.60  261.84 695.84    274.62     428.40  258.26   
+2026                 377.02  237.55 417.27    294.37     448.13  259.98   
+
+CountyOrParish  Modoc   Mono  Monterey   Napa  Nevada  Orange  Other  \
+Year                                                                   
+2024            71.41 109.50    726.04 443.61  331.70  438.66  79.32   
+2025              NaN 451.79    720.40 434.52  315.57  471.61 180.40   
+2026           138.31 410.17    727.78 376.26  265.41  451.65  45.56   
+
+CountyOrParish  Other County  Other State  Placer  Plumas  Riverside  \
+Year                                                                   
+2024                35843.11        60.58  330.15  352.94     278.21   
+2025                     NaN       132.96  327.20  254.16     290.77   
+2026                     NaN        48.04  264.24  318.36     283.60   
+
+CountyOrParish  Sacramento  San Benito  San Bernardino  San Diego  \
+Year                                                                
+2024                303.76      406.70          279.48     634.38   
+2025                312.69      421.53          279.20     865.45   
+2026                289.95      448.57          307.44     841.09   
+
+CountyOrParish  San Francisco  San Joaquin  San Luis Obispo  San Mateo  \
+Year                                                                     
+2024                   697.56       310.62           529.08     920.83   
+2025                   744.51       300.87           539.41     919.45   
+2026                   764.68       261.70           524.76     976.01   
+
+CountyOrParish  Santa Barbara  Santa Clara  Santa Cruz  Shasta  Sierra  \
+Year                                                                     
+2024                   528.52       972.29      761.72  185.81     NaN   
+2025                   609.25       947.35      757.16  203.69  222.90   
+2026                   567.69       956.82      733.70  238.22     NaN   
+
+CountyOrParish  Siskiyou  Solano  Sonoma  Stanislaus  Sutter  Tehama  Trinity  \
+Year                                                                            
+2024              211.04  345.34  467.00      277.79  257.62  202.19   250.57   
+2025              185.87  333.21  461.82      277.91  249.06  213.72   209.80   
+2026              182.68  291.82  367.99      268.45  240.53  223.23   196.07   
+
+CountyOrParish  Tulare  Tuolumne  Ventura   Yolo   Yuba  
+Year                                                     
+2024            236.69    271.79   461.73 327.46 259.54  
+2025            228.10    242.53   464.26 339.80 251.78  
+2026            245.11    253.14   363.71 300.11 235.85  
+
+================================================================================
+QUICK SUMMARY STATISTICS
+================================================================================
+Total Transactions: 540,525
+Total Volume ($): 477,161,828,230
+Average Price ($): 882,781
+Median Price ($): 629,000
+Average Price per Sq Ft ($): 479
+Average Price Ratio: 47
+Average Days on Market: 44
+"""
+
