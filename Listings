@@ -914,4 +914,210 @@ Average Price per Sq Ft ($): 479
 Average Price Ratio: 47
 Average Days on Market: 44
 """
+#WEEK 7
+import pandas as pd
+
+
+listing = pd.read_csv("C:\IDX EXCHANGE\Listing_FINAL_CLEANED.csv", encoding = 'latin1', low_memory=False)
+# Make a copy for flagged dataset
+listing_flagged = listing.copy()
+
+# Define columns to check for outliers
+outlier_columns = ['ClosePrice', 'LivingArea', 'DaysOnMarket']
+
+# Calculate IQR and create outlier flags for each column
+for col in outlier_columns:
+    # Skip if column has too many nulls
+    if listing[col].isna().sum() > len(listing) * 0.5:
+        print(f"Warning: {col} has {listing[col].isna().sum()} null values, skipping IQR")
+        listing_flagged[f'{col}_outlier'] = False
+        continue
+    
+    # Calculate Q1, Q3, IQR
+    Q1 = listing[col].quantile(0.25)
+    Q3 = listing[col].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    
+    # Create outlier flag
+    listing_flagged[f'{col}_outlier'] = (listing[col] < lower_bound) | (listing[col] > upper_bound)
+    
+    print(f"\n{col} - Outlier bounds:")
+    print(f"  Q1: {Q1:,.2f}, Q3: {Q3:,.2f}, IQR: {IQR:,.2f}")
+    print(f"  Lower bound: {lower_bound:,.2f}, Upper bound: {upper_bound:,.2f}")
+    print(f"  Outliers: {listing_flagged[f'{col}_outlier'].sum():,} ({listing_flagged[f'{col}_outlier'].mean()*100:.1f}%)")
+
+# Create a combined outlier flag (any outlier in any column)
+outlier_cols = [f'{col}_outlier' for col in outlier_columns if f'{col}_outlier' in listing_flagged.columns]
+listing_flagged['is_outlier_any'] = listing_flagged[outlier_cols].any(axis=1)
+listing_flagged['outlier_count'] = listing_flagged[outlier_cols].sum(axis=1)
+
+print(f"\n{'='*60}")
+print(f"Total rows with at least one outlier: {listing_flagged['is_outlier_any'].sum():,} ({listing_flagged['is_outlier_any'].mean()*100:.1f}%)")
+print(f"Total rows with no outliers: {(~listing_flagged['is_outlier_any']).sum():,}")
+
+# Create clean filtered dataset (no outliers in any column)
+listing_clean = listing_flagged[~listing_flagged['is_outlier_any']].copy()
+
+# Remove outlier flag columns from clean dataset (optional)
+listing_clean = listing_clean.drop(columns=outlier_cols + ['is_outlier_any', 'outlier_count'])
+
+# ============================================
+# COMPARISON STATISTICS
+# ============================================
+
+print("\n" + "="*60)
+print("DATASET COMPARISON BEFORE AND AFTER FILTERING")
+print("="*60)
+
+# Before filtering (original sold dataset)
+before_count = len(listing)
+after_count = len(listing_clean)
+removed_count = before_count - after_count
+removed_pct = (removed_count / before_count) * 100
+
+print(f"\n{'Metric':<30} {'Before':>15} {'After':>15} {'Change':>15}")
+print("-"*75)
+
+# Dataset size
+print(f"{'Dataset Size (rows)':<30} {before_count:>15,} {after_count:>15,} {removed_count:>15,} ({removed_pct:.1f}%)")
+
+# Compare median values for each metric
+for col in outlier_columns:
+    if col in listing.columns and col in listing_clean.columns:
+        before_median = listing[col].median()
+        after_median = listing_clean[col].median()
+        change = after_median - before_median
+        change_pct = (change / before_median) * 100
+        
+        # Format based on column type
+        if col == 'ClosePrice':
+            print(f"{col:<30} ${before_median:>14,.0f} ${after_median:>14,.0f} ${change:>14,.0f} ({change_pct:+.1f}%)")
+        elif col == 'LivingArea':
+            print(f"{col:<30} {before_median:>15,.0f} {after_median:>15,.0f} {change:>15,.0f} ({change_pct:+.1f}%)")
+        else:
+            print(f"{col:<30} {before_median:>15,.0f} {after_median:>15,.0f} {change:>15,.0f} ({change_pct:+.1f}%)")
+
+# Additional statistics for ClosePrice
+print(f"\n{'ClosePrice Additional Stats':<30} {'Before':>15} {'After':>15}")
+print("-"*75)
+print(f"{'Mean':<30} ${listing['ClosePrice'].mean():>14,.0f} ${listing_clean['ClosePrice'].mean():>14,.0f}")
+print(f"{'Std Dev':<30} ${listing['ClosePrice'].std():>14,.0f} ${listing_clean['ClosePrice'].std():>14,.0f}")
+print(f"{'Min':<30} ${listing['ClosePrice'].min():>14,.0f} ${listing_clean['ClosePrice'].min():>14,.0f}")
+print(f"{'Max':<30} ${listing['ClosePrice'].max():>14,.0f} ${listing_clean['ClosePrice'].max():>14,.0f}")
+
+# ============================================
+# SAVE BOTH DATASETS
+# ============================================
+
+# Save flagged dataset (with outlier indicators)
+listing_flagged.to_csv("Listing_With_Outlier_Flags.csv", index=False)
+print("\n Saved flagged dataset with outliers: 'Listing_With_Outlier_Flags.csv'")
+print(f"  Shape: {listing_flagged.shape}")
+
+# Save clean filtered dataset
+listing_clean.to_csv("Listing_Clean_No_Outliers.csv", index=False)
+print("Saved clean dataset (no outliers): 'Listing_Clean_No_Outliers.csv'")
+print(" Shape: {listing_clean.shape}")
+
+# ============================================
+# WRITTEN COMPARISON SUMMARY
+# ============================================
+
+print("\n" + "="*60)
+print("WRITTEN COMPARISON SUMMARY")
+print("="*60)
+
+print(f"""
+OUTLIER FILTERING SUMMARY
+-------------------------
+Original dataset contained {before_count:,} residential property transactions.
+After applying IQR filtering (1.5 * IQR rule) to ClosePrice, LivingArea, and DaysOnMarket,
+{removed_count:,} rows ({removed_pct:.1f}%) were identified as outliers and flagged.
+
+KEY FINDINGS:
+- The median ClosePrice changed from ${listing['ClosePrice'].median():,.0f} to 
+  ${listing_clean['ClosePrice'].median():,.0f} ({((listing_clean['ClosePrice'].median() / listing['ClosePrice'].median()) - 1) * 100:+.1f}%)
+  
+- The median LivingArea changed from {listing['LivingArea'].median():,.0f} sq ft to 
+  {listing_clean['LivingArea'].median():,.0f} sq ft ({((listing_clean['LivingArea'].median() / listing['LivingArea'].median()) - 1) * 100:+.1f}%)
+  
+- The median DaysOnMarket changed from {listing['DaysOnMarket'].median():,.0f} days to 
+  {listing_clean['DaysOnMarket'].median():,.0f} days ({((listing_clean['DaysOnMarket'].median() / listing['DaysOnMarket'].median()) - 1) * 100:+.1f}%)
+
+The clean dataset provides a more reliable basis for statistical analysis by removing 
+extreme values that could skew results. The flagged dataset preserves all original data 
+while allowing for sensitivity analysis by including/excluding outliers.
+
+Both datasets have been saved for further analysis.
+""")
+"""
+ClosePrice - Outlier bounds:
+  Q1: 575,000.00, Q3: 1,300,000.00, IQR: 725,000.00
+  Lower bound: -512,500.00, Upper bound: 2,387,500.00
+  Outliers: 27,024 (7.4%)
+
+LivingArea - Outlier bounds:
+  Q1: 1,248.00, Q3: 2,221.00, IQR: 973.00
+  Lower bound: -211.50, Upper bound: 3,680.50
+  Outliers: 15,958 (4.4%)
+
+DaysOnMarket - Outlier bounds:
+  Q1: 8.00, Q3: 49.00, IQR: 41.00
+  Lower bound: -53.50, Upper bound: 110.50
+  Outliers: 27,065 (7.5%)
+
+============================================================
+Total rows with at least one outlier: 56,387 (15.5%)
+Total rows with no outliers: 306,444
+
+============================================================
+DATASET COMPARISON BEFORE AND AFTER FILTERING
+============================================================
+
+Metric                                  Before           After          Change
+---------------------------------------------------------------------------
+Dataset Size (rows)                    362,831         306,444          56,387 (15.5%)
+ClosePrice                     $       824,000 $       785,000 $       -39,000 (-4.7%)
+LivingArea                               1,644           1,570             -74 (-4.5%)
+DaysOnMarket                                19              17              -2 (-10.5%)
+
+ClosePrice Additional Stats             Before           After
+---------------------------------------------------------------------------
+Mean                           $     1,199,635 $       898,235
+Std Dev                        $     6,543,917 $       459,860
+Min                            $             0 $             0
+Max                            $   989,500,000 $     2,387,500
+
+ Saved flagged dataset with outliers: 'Listing_With_Outlier_Flags.csv'
+  Shape: (362831, 75)
+Saved clean dataset (no outliers): 'Listing_Clean_No_Outliers.csv'
+ Shape: {listing_clean.shape}
+
+============================================================
+WRITTEN COMPARISON SUMMARY
+============================================================
+
+OUTLIER FILTERING SUMMARY
+-------------------------
+Original dataset contained 362,831 residential property transactions.
+After applying IQR filtering (1.5 * IQR rule) to ClosePrice, LivingArea, and DaysOnMarket,
+56,387 rows (15.5%) were identified as outliers and flagged.
+
+KEY FINDINGS:
+- The median ClosePrice changed from $824,000 to 
+  $785,000 (-4.7%)
+  
+- The median LivingArea changed from 1,644 sq ft to 
+  1,570 sq ft (-4.5%)
+  
+- The median DaysOnMarket changed from 19 days to 
+  17 days (-10.5%)
+
+The clean dataset provides a more reliable basis for statistical analysis by removing 
+extreme values that could skew results. The flagged dataset preserves all original data 
+while allowing for sensitivity analysis by including/excluding outliers.
+
+Both datasets have been saved for further analysis.
 
