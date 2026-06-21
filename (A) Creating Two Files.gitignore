@@ -1,0 +1,40 @@
+"""
+This file is going to create two combined files, one for Sold and another for Lisitng respectively
+"""
+
+import pandas as pd
+import os
+import glob
+
+folder_path = "C:/IDX EXCHANGE/raw"
+
+#get csv file
+sold = os.path.join(folder_path, '*Sold*.csv')
+listing = os.path.join(folder_path,'*Listing*.csv')
+
+sold_files = glob.glob(sold)
+listing_files = glob.glob(listing)
+
+print(f"Found {len(sold_files)} sold files")
+print(f"Found {len(listing_files)} listing files")
+
+#sold files
+if sold_files:
+    sold_dfs = [pd.read_csv(f, encoding = 'latin1', low_memory=False) for f in sold_files]
+    combined_sold = pd.concat(sold_dfs, ignore_index=True)
+    combined_sold.to_csv('Sold_combined.csv', index=False)
+    print(f"\n Sold: {len(sold_files)} files, {len(combined_sold)} total rows")
+    
+    #shows which files were combined
+    for f in sold_files:
+        print(f"   - {os.path.basename(f)}")
+
+#listing files
+if listing_files:
+    listing_dfs = [pd.read_csv(f,encoding = 'latin1', low_memory=False) for f in listing_files]
+    combined_listing = pd.concat(listing_dfs, ignore_index=True)
+    combined_listing.to_csv('Listing_combined.csv', index=False)
+    print(f"\n Listing: {len(listing_files)} files, {len(combined_listing)} total rows")
+    
+    for f in listing_files:
+            print(f"   -  {os.path.basename(f)}")
